@@ -57,6 +57,19 @@ input, select{
 input:focus, select:focus{border-color: rgba(78,161,255,.5); box-shadow: 0 0 0 3px rgba(78,161,255,.12);}
 
 .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+ label.row{flex-direction:row}
+
+ #renonceIndemnites{
+  width:20px;
+  height:20px;
+  transform: scale(1.15);
+  transform-origin: left center;
+  accent-color: var(--danger);
+ }
+ #renonceIndemnites + span{
+  color: var(--danger);
+  font-weight:700;
+ }
 .btn{
   border:1px solid var(--line);
   background: rgba(255,255,255,.04);

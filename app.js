@@ -439,7 +439,7 @@ async function createRecapPdfDefault({ nom, lines, total }) {
   return pdfDoc;
 }
 
-async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, total }) {
+async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, lines, total }) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait
 
@@ -477,6 +477,19 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   const centerText = (text, y, size, usedFont, color = black) => {
     const tw = usedFont.widthOfTextAtSize(text, size);
     page.drawText(text, { x: (w - tw) / 2, y, size, font: usedFont, color });
+  };
+
+  const drawStamp = (text, yCenter) => {
+    const size = 11;
+    const paddingX = 14;
+    const paddingY = 10;
+    const tw = fontBold.widthOfTextAtSize(text, size);
+    const boxW = tw + paddingX * 2;
+    const boxH = size + paddingY * 2;
+    const x = (w - boxW) / 2;
+    const y = yCenter - boxH / 2;
+    page.drawRectangle({ x, y, width: boxW, height: boxH, borderColor: red, borderWidth: 2, color: rgb(1, 1, 1), opacity: 0.0 });
+    page.drawText(text, { x: x + paddingX, y: y + paddingY, size, font: fontBold, color: red });
   };
 
   const missionStr = (() => {
@@ -673,11 +686,14 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   page.drawLine({ start: { x: tableX + tableW, y: y }, end: { x: tableX + tableW, y: y - headerH }, thickness: 1, color: gray });
   y -= headerH;
 
-  const maxRowsFirstPage = 2;
-  const firstLines = Array.isArray(lines) ? lines.slice(0, maxRowsFirstPage) : [];
-  const overflowLines = Array.isArray(lines) ? lines.slice(maxRowsFirstPage) : [];
+  // Fit as many rows as possible on the first page without overlapping the bottom blocks
+  const minYAfterTable = 250;
+  const maxRowsFirstPage = Math.max(0, Math.floor((y - minYAfterTable) / rowH));
+  const safeLines = Array.isArray(lines) ? lines : [];
+  const firstLines = safeLines.slice(0, Math.min(maxRowsFirstPage, safeLines.length));
+  const overflowLines = safeLines.slice(firstLines.length);
 
-  for (let i=0;i<maxRowsFirstPage;i++) {
+  for (let i=0;i<firstLines.length;i++) {
     const l = firstLines[i];
     page.drawRectangle({ x: tableX, y: y - rowH, width: tableW, height: rowH, borderColor: gray, borderWidth: 1 });
     cx = tableX;
@@ -720,6 +736,10 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   y -= 50;
   centerText('Je certifie ne pas me faire rembourser mes frais plusieurs fois.', y, 10.5, fontBold, red);
 
+  if (renonceIndemnites) {
+    drawStamp('Je renonce au paiement de ces indemnités', y - 22);
+  }
+
   // --- Signature boxes ---
   const boxY = 55;
   const boxH = 78;
@@ -729,8 +749,8 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   page.drawRectangle({ x: leftX, y: boxY, width: boxW, height: boxH, borderColor: gray, borderWidth: 1 });
   page.drawRectangle({ x: rightX, y: boxY, width: boxW, height: boxH, borderColor: gray, borderWidth: 1 });
   page.drawText('Nom prénom et Date', { x: leftX + 40, y: boxY + boxH - 20, size: 10, font: fontBold, color: black });
-  page.drawText(`${safe(nom) || '—'}, ${missionStr || nowStr}`, { x: leftX + 16, y: boxY + boxH - 36, size: 10, font, color: black });
-  // Visa du trésorier: laisser vide
+  page.drawText(`${safe(nom) || '—'}, ${nowStr}`, { x: leftX + 16, y: boxY + boxH - 36, size: 10, font, color: black });
+  page.drawText('Le trésorier :', { x: rightX + 14, y: boxY + boxH - 22, size: 10, font: fontBold, color: black });
 
   // If overflow lines, add a details page (simple style)
   if (overflowLines.length > 0) {
@@ -796,13 +816,14 @@ async function generateFinalPdf() {
   const motif = (el('motif')?.value || '').trim();
   const lieu = (el('lieu')?.value || '').trim();
   const dateMission = (el('dateMission')?.value || '').trim();
+  const renonceIndemnites = !!el('renonceIndemnites')?.checked;
 
   const lines = getLinesData();
   const total = lines.reduce((s, l) => s + (l.amt || 0), 0);
 
   // Build recap
   setStatus('Génération du récap PDF…');
-  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, total });
+  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, lines, total });
 
   // Create final doc + copy recap pages
   const finalDoc = await PDFDocument.create();

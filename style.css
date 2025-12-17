@@ -103,6 +103,10 @@ tfoot td{background: rgba(255,255,255,.02)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px}
 
  #fraisTable{table-layout:fixed}
+ #fraisTable th,
+ #fraisTable td{text-align:center; vertical-align:middle}
+ #fraisTable td.num,
+ #fraisTable th.num{text-align:center}
  #fraisTable th:nth-child(1),
  #fraisTable td:nth-child(1){width:140px}
  #fraisTable th:nth-child(3),
@@ -115,7 +119,7 @@ tfoot td{background: rgba(255,255,255,.02)}
  #fraisTable td:nth-child(6){width:80px}
 
  #fraisTable input,
- #fraisTable select{width:100%}
+ #fraisTable select{width:100%; text-align:center}
  #fraisTable input.km,
  #fraisTable input.amt{padding-left:8px;padding-right:8px}
 

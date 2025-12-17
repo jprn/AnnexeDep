@@ -10,6 +10,8 @@ const state = {
   justifs: [], // { id, file, name, type, size, source: 'list'|'line', lineIndex? }
 };
 
+const DEPLACEMENT_TARIF_EUR_KM = 0.3;
+
 const fmtEUR = (n) => {
   const v = Number.isFinite(n) ? n : 0;
   return v.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -53,6 +55,7 @@ function addLineRow(prefill = {}) {
       </select>
     </td>
     <td><input type="text" class="desc" placeholder="Ex: Rouen → Le Havre" value="${prefill.desc || ''}"></td>
+    <td class="num"><input type="number" step="1" min="0" class="km" placeholder="0" value="${prefill.km || ''}"></td>
     <td class="num"><input type="number" step="0.01" min="0" class="amt" placeholder="0.00" value="${prefill.amt || ''}"></td>
     <td>
       <input type="file" class="lineJustif" accept=".pdf,image/*" />
@@ -65,7 +68,27 @@ function addLineRow(prefill = {}) {
   tr.querySelector('.cat').value = prefill.cat || 'Déplacement';
 
   // Events
-  tr.querySelector('.amt').addEventListener('input', updateTotal);
+  const kmEl = tr.querySelector('.km');
+  const amtEl = tr.querySelector('.amt');
+  const catEl = tr.querySelector('.cat');
+
+  const applyDeplacementRules = () => {
+    const cat = (catEl.value || '').trim();
+    const isDep = cat === 'Déplacement';
+    if (isDep) {
+      const km = parseFloat(kmEl.value || '0') || 0;
+      const amt = km * DEPLACEMENT_TARIF_EUR_KM;
+      amtEl.value = amt ? amt.toFixed(2) : '';
+      amtEl.disabled = true;
+    } else {
+      amtEl.disabled = false;
+    }
+    updateTotal();
+  };
+
+  amtEl.addEventListener('input', updateTotal);
+  kmEl.addEventListener('input', applyDeplacementRules);
+  catEl.addEventListener('change', applyDeplacementRules);
   tr.querySelector('.delRow').addEventListener('click', () => {
     // remove any linked justif for that line
     const row = state.lineRows[lineIndex];
@@ -118,7 +141,7 @@ function addLineRow(prefill = {}) {
     linkedJustifId: null
   });
 
-  updateTotal();
+  applyDeplacementRules();
 }
 
 function getLinesData() {
@@ -128,8 +151,9 @@ function getLinesData() {
     const date = r.tr.querySelector('.date').value || '';
     const cat = r.tr.querySelector('.cat').value || '';
     const desc = r.tr.querySelector('.desc').value || '';
+    const km = parseFloat(r.tr.querySelector('.km')?.value || '0') || 0;
     const amt = parseFloat(r.tr.querySelector('.amt').value || '0') || 0;
-    rows.push({ date, cat, desc, amt });
+    rows.push({ date, cat, desc, km, amt });
   });
   return rows;
 }
@@ -509,11 +533,11 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   }
 
   // President / email (center)
-  centerText('Président :', h - 115, 9, fontBold, gray);
-  centerText('Email :', h - 128, 9, fontBold, gray);
+  centerText('Président : Francis MOINE 8, les drillons 89570 BEUGNON', h - 115, 9, fontBold, gray);
+  centerText('Émail : ligue.bourgogne-franche-comte@ffcorientation.fr', h - 128, 9, fontBold, gray);
 
   // Treasurer block (left)
-  page.drawText('Trésorière :', { x: 55, y: h - 160, size: 9, font: fontBold, color: gray });
+  page.drawText('Trésorière : Clotilde PERRIN', { x: 55, y: h - 160, size: 9, font: fontBold, color: gray });
   const treLines = [
     '24 rue des Justices Bât 35 Appart 181',
     '25000 Besançon',
@@ -606,8 +630,11 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
     page.drawRectangle({ x: tableX, y: y - rowH, width: tableW, height: rowH, borderColor: gray, borderWidth: 1 });
     cx = tableX;
     const desc = l ? `${safe(l.cat)}${l.desc ? ' — ' + safe(l.desc) : ''}`.trim() : '';
+    const isDep = l && (safe(l.cat) === 'Déplacement');
+    const tarif = isDep ? '0,30€' : '';
+    const kms = isDep ? String(Math.round(l.km || 0)) : '';
     const montant = l ? `${fmtEUR(l.amt || 0)}€` : '';
-    const cells = [desc, '', '', montant];
+    const cells = [desc, tarif, kms, montant];
     for (let j=0;j<cols.length;j++) {
       const c = cols[j];
       page.drawLine({ start: { x: cx, y }, end: { x: cx, y: y - rowH }, thickness: 1, color: gray });

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Note de frais — Générateur PDF</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- PDF-Lib (fusion + génération PDF) -->
+  <script defer src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="container">
+    <h1>Note de frais</h1>
+    <p class="muted">Remplis le récap, ajoute tes justificatifs (PDF/JPG/PNG), puis génère un PDF unique.</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Informations</h2>
+      <div class="form-grid">
+        <label>
+          Nom / Prénom
+          <input id="nom" type="text" placeholder="Ex: Jean Dupont" />
+        </label>
+        <label>
+          Adresse
+          <input id="adresse" type="text" placeholder="Ex: 10 rue de la Libération, 21320 Vandenesse-en-Auxois" />
+        </label>
+        <label>
+          Motif du déplacement
+          <input id="motif" type="text" placeholder="Ex: Rendez-vous des Ligues" />
+        </label>
+        <label>
+          Lieu du déplacement
+          <input id="lieu" type="text" placeholder="Ex: Maison des Sports de Besançon" />
+        </label>
+        <label>
+          Date de la mission
+          <input id="dateMission" type="date" />
+        </label>
+      </div>
+
+      <div class="row">
+        <button id="addRowBtn" class="btn">➕ Ajouter une ligne</button>
+        <button id="clearBtn" class="btn btn-ghost" title="Efface lignes + justificatifs">Réinitialiser</button>
+      </div>
+
+      <h2>Lignes de frais</h2>
+      <div class="table-wrap">
+        <table id="fraisTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Catégorie</th>
+              <th>Description</th>
+              <th class="num">Montant (€)</th>
+              <th>Justif</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="fraisBody"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="right"><strong>Total</strong></td>
+              <td class="num"><strong id="totalEuros">0,00</strong></td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p class="hint">
+        Astuce : tu peux associer un justificatif à une ligne en sélectionnant un fichier dans la colonne <strong>Justif</strong>.
+      </p>
+
+      <hr />
+
+      <h2>Génération</h2>
+      <label class="row">
+        <input id="includeLineJustifsFirst" type="checkbox" checked />
+        <span>Mettre d’abord les justificatifs liés aux lignes, puis le reste</span>
+      </label>
+
+      <div class="row">
+        <button id="generateBtn" class="btn btn-primary">📄 Générer le PDF final</button>
+      </div>
+
+      <p class="muted small">
+        Remarque : tout se fait dans ton navigateur (pas d’envoi serveur). Selon la taille des fichiers, ça peut prendre quelques secondes.
+      </p>
+
+      <div id="status" class="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <span class="muted small">Option A — Web app 100% navigateur (PDF-Lib). </span>
+  </footer>
+</body>
+</html>

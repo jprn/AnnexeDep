@@ -28,7 +28,7 @@ p{margin:8px 0}
 .muted{color:var(--muted)}
 .small{font-size:12px}
 .header-title{display:flex;align-items:center;gap:12px}
-.header-logo{height:40px;width:auto;display:block}
+.header-logo{height:100px;width:auto;display:block}
 .grid{display:grid;grid-template-columns: 1.3fr .9fr;gap:16px}
 @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
 

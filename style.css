@@ -87,6 +87,11 @@ td.num, th.num{text-align:right; font-variant-numeric: tabular-nums;}
 tfoot td{background: rgba(255,255,255,.02)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px}
 
+ #fraisTable input.km{width:72px}
+ #fraisTable input.amt{width:96px}
+ #fraisTable input.km,
+ #fraisTable input.amt{padding-left:8px;padding-right:8px}
+
 .list{margin-top:10px;display:flex;flex-direction:column;gap:10px}
 .item{
   display:flex;justify-content:space-between;align-items:center;gap:10px;
@@ -102,3 +107,6 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0}
 
 .status{margin-top:10px;min-height:18px;color:var(--muted);font-size:13px}
 .footer{padding-top:0;padding-bottom:24px}
+
+ .preview{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background: rgba(0,0,0,.18)}
+ .preview-frame{width:100%;height:620px;border:0;display:block;background:#fff}

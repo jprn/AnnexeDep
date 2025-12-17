@@ -12,6 +12,12 @@ const state = {
 
 const DEPLACEMENT_TARIF_EUR_KM = 0.3;
 
+const generated = {
+  bytes: null,
+  filename: null,
+  url: null
+};
+
 const fmtEUR = (n) => {
   const v = Number.isFinite(n) ? n : 0;
   return v.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -21,6 +27,41 @@ const el = (id) => document.getElementById(id);
 
 function setStatus(msg) {
   el('status').textContent = msg || '';
+}
+
+function clearGeneratedPreview() {
+  if (generated.url) {
+    URL.revokeObjectURL(generated.url);
+  }
+  generated.bytes = null;
+  generated.filename = null;
+  generated.url = null;
+
+  const preview = el('pdfPreview');
+  const wrap = el('pdfPreviewWrap');
+  if (preview) preview.src = '';
+  if (wrap) wrap.hidden = true;
+
+  const dl = el('downloadBtn');
+  if (dl) dl.disabled = true;
+}
+
+function setGeneratedPreview(bytes, filename) {
+  clearGeneratedPreview();
+  generated.bytes = bytes;
+  generated.filename = filename;
+
+  const blob = new Blob([bytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  generated.url = url;
+
+  const preview = el('pdfPreview');
+  const wrap = el('pdfPreviewWrap');
+  if (preview) preview.src = url;
+  if (wrap) wrap.hidden = false;
+
+  const dl = el('downloadBtn');
+  if (dl) dl.disabled = false;
 }
 
 function bytesToHuman(bytes) {
@@ -76,12 +117,19 @@ function addLineRow(prefill = {}) {
     const cat = (catEl.value || '').trim();
     const isDep = cat === 'Déplacement';
     if (isDep) {
+      kmEl.disabled = false;
+      kmEl.style.display = '';
       const km = parseFloat(kmEl.value || '0') || 0;
       const amt = km * DEPLACEMENT_TARIF_EUR_KM;
       amtEl.value = amt ? amt.toFixed(2) : '';
       amtEl.disabled = true;
     } else {
+      // switching away from Déplacement: user must enter amount manually
+      if (amtEl.disabled) amtEl.value = '';
       amtEl.disabled = false;
+      kmEl.value = '';
+      kmEl.disabled = true;
+      kmEl.style.display = 'none';
     }
     updateTotal();
   };
@@ -306,9 +354,11 @@ async function createRecapPdfDefault({ nom, lines, total }) {
   const rowH = 18;
 
   const cols = [
-    { key:'date', label:'Date', width: 80 },
-    { key:'cat', label:'Catégorie', width: 95 },
-    { key:'desc', label:'Description', width: tableW - (80+95+80) },
+    { key:'date', label:'Date', width: 75 },
+    { key:'cat', label:'Catégorie', width: 92 },
+    { key:'desc', label:'Description', width: tableW - (75+92+55+55+80) },
+    { key:'tarif', label:'Tarif', width: 55, align:'right' },
+    { key:'km', label:'Km', width: 55, align:'right' },
     { key:'amt', label:'Montant', width: 80, align:'right' }
   ];
 
@@ -349,10 +399,15 @@ async function createRecapPdfDefault({ nom, lines, total }) {
     p.drawLine({ start: {x: tableX, y: y+4}, end: {x: tableX+tableW, y: y+4}, thickness: 1, color: rgb(0.92,0.93,0.96) });
 
     cx = tableX + 6;
+    const isDep = ((line.cat || '').trim() === 'Déplacement');
+    const tarif = isDep ? '0,30' : '';
+    const kms = isDep ? String(Math.round(line.km || 0)) : '';
     const cells = [
       line.date || '',
       line.cat || '',
       line.desc || '',
+      tarif,
+      kms,
       fmtEUR(line.amt || 0)
     ];
     for (let j=0;j<cols.length;j++) {
@@ -677,10 +732,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   page.drawRectangle({ x: rightX, y: boxY, width: boxW, height: boxH, borderColor: gray, borderWidth: 1 });
   page.drawText('Nom prénom et Date', { x: leftX + 40, y: boxY + boxH - 20, size: 10, font: fontBold, color: black });
   page.drawText(`${safe(nom) || '—'}, ${missionStr || nowStr}`, { x: leftX + 16, y: boxY + boxH - 36, size: 10, font, color: black });
-  page.drawText('Visa du trésorier', { x: rightX + 58, y: boxY + boxH - 20, size: 10, font: fontBold, color: black });
-  page.drawText(`Virl le ${missionStr || nowStr}`, { x: rightX + 22, y: boxY + boxH - 38, size: 10, font, color: black });
-  // placeholder stamp circle
-  page.drawEllipse({ x: rightX + boxW - 55, y: boxY + 35, xScale: 32, yScale: 32, borderColor: gray, borderWidth: 1 });
+  // Visa du trésorier: laisser vide
 
   // If overflow lines, add a details page (simple style)
   if (overflowLines.length > 0) {
@@ -739,6 +791,7 @@ async function generateFinalPdf() {
   }
 
   setStatus('Préparation…');
+  clearGeneratedPreview();
 
   const nom = el('nom').value.trim();
   const adresse = (el('adresse')?.value || '').trim();
@@ -797,8 +850,8 @@ async function generateFinalPdf() {
   const filenameBase = rawBase.replace(/[^a-z0-9_-]+/gi, '_');
   const outName = `${filenameBase}_complet.pdf`;
 
-  downloadBytes(bytes, outName);
-  setStatus(`✅ PDF généré : ${outName}`);
+  setGeneratedPreview(bytes, outName);
+  setStatus(`✅ PDF prêt : ${outName}`);
 }
 
 function downloadBytes(bytes, filename) {
@@ -822,6 +875,7 @@ function resetAll() {
   state.justifs = [];
   const justifsInput = el('justifsInput');
   if (justifsInput) justifsInput.value = '';
+  clearGeneratedPreview();
   renderJustifsList();
   updateTotal();
   setStatus('');
@@ -852,6 +906,14 @@ window.addEventListener('DOMContentLoaded', () => {
       alert('Erreur pendant la génération du PDF. Détail dans la console (F12).');
     });
   });
+
+  const downloadBtn = el('downloadBtn');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      if (!generated.bytes || !generated.filename) return;
+      downloadBytes(generated.bytes, generated.filename);
+    });
+  }
 
   renderJustifsList();
   updateTotal();

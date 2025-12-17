@@ -87,8 +87,20 @@ td.num, th.num{text-align:right; font-variant-numeric: tabular-nums;}
 tfoot td{background: rgba(255,255,255,.02)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px}
 
- #fraisTable input.km{width:72px}
- #fraisTable input.amt{width:96px}
+ #fraisTable{table-layout:fixed}
+ #fraisTable th:nth-child(1),
+ #fraisTable td:nth-child(1){width:140px}
+ #fraisTable th:nth-child(3),
+ #fraisTable td:nth-child(3){width:90px}
+ #fraisTable th:nth-child(4),
+ #fraisTable td:nth-child(4){width:120px}
+ #fraisTable th:nth-child(5),
+ #fraisTable td:nth-child(5){width:220px}
+ #fraisTable th:nth-child(6),
+ #fraisTable td:nth-child(6){width:80px}
+
+ #fraisTable input,
+ #fraisTable select{width:100%}
  #fraisTable input.km,
  #fraisTable input.amt{padding-left:8px;padding-right:8px}
 

@@ -83,7 +83,6 @@ function addLineRow(prefill = {}) {
   const lineIndex = state.lineRows.length;
 
   tr.innerHTML = `
-    <td><input type="date" class="date" value="${prefill.date || ''}"></td>
     <td>
       <select class="cat">
         <option value="Déplacement">Déplacement</option>
@@ -196,12 +195,11 @@ function getLinesData() {
   const rows = [];
   state.lineRows.forEach((r) => {
     if (!r || !r.tr || !r.tr.isConnected) return;
-    const date = r.tr.querySelector('.date').value || '';
     const cat = r.tr.querySelector('.cat').value || '';
     const desc = r.tr.querySelector('.desc').value || '';
     const km = parseFloat(r.tr.querySelector('.km')?.value || '0') || 0;
     const amt = parseFloat(r.tr.querySelector('.amt').value || '0') || 0;
-    rows.push({ date, cat, desc, km, amt });
+    rows.push({ cat, desc, km, amt });
   });
   return rows;
 }
@@ -354,9 +352,8 @@ async function createRecapPdfDefault({ nom, lines, total }) {
   const rowH = 18;
 
   const cols = [
-    { key:'date', label:'Date', width: 75 },
-    { key:'cat', label:'Catégorie', width: 92 },
-    { key:'desc', label:'Description', width: tableW - (75+92+55+55+80) },
+    { key:'cat', label:'Catégorie', width: 110 },
+    { key:'desc', label:'Description', width: tableW - (110+55+55+80) },
     { key:'tarif', label:'Tarif', width: 55, align:'right' },
     { key:'km', label:'Km', width: 55, align:'right' },
     { key:'amt', label:'Montant', width: 80, align:'right' }
@@ -403,7 +400,6 @@ async function createRecapPdfDefault({ nom, lines, total }) {
     const tarif = isDep ? '0,30' : '';
     const kms = isDep ? String(Math.round(line.km || 0)) : '';
     const cells = [
-      line.date || '',
       line.cat || '',
       line.desc || '',
       tarif,
@@ -660,7 +656,8 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
   const headerH = 22;
   const rowH = 20;
   const cols = [
-    { key: 'desc', label: 'TRANSPORTS/RESTAURATION', w: tableW * 0.52 },
+    { key: 'cat', label: 'Catégorie', w: tableW * 0.20 },
+    { key: 'desc', label: 'Description', w: tableW * 0.32 },
     { key: 'tarif', label: 'Tarif', w: tableW * 0.16 },
     { key: 'km', label: 'Kilomètres', w: tableW * 0.16 },
     { key: 'amt', label: 'MONTANT', w: tableW * 0.16, align: 'right' }
@@ -684,12 +681,13 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, lines, t
     const l = firstLines[i];
     page.drawRectangle({ x: tableX, y: y - rowH, width: tableW, height: rowH, borderColor: gray, borderWidth: 1 });
     cx = tableX;
-    const desc = l ? `${safe(l.cat)}${l.desc ? ' — ' + safe(l.desc) : ''}`.trim() : '';
+    const cat = l ? safe(l.cat) : '';
+    const desc = l ? safe(l.desc) : '';
     const isDep = l && (safe(l.cat) === 'Déplacement');
     const tarif = isDep ? '0,30€' : '';
     const kms = isDep ? String(Math.round(l.km || 0)) : '';
     const montant = l ? `${fmtEUR(l.amt || 0)}€` : '';
-    const cells = [desc, tarif, kms, montant];
+    const cells = [cat, desc, tarif, kms, montant];
     for (let j=0;j<cols.length;j++) {
       const c = cols[j];
       page.drawLine({ start: { x: cx, y }, end: { x: cx, y: y - rowH }, thickness: 1, color: gray });

@@ -613,13 +613,13 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     ty -= 12;
   }
 
-  // --- Titles ---
-  centerText('ANNEXE I', h - 250, 14, fontBold, black);
-  centerText('État de remboursement des frais de déplacement pour mission', h - 275, 14, fontBold, black);
+  // --- Titles (moved up to free space for the table) ---
+  centerText('ANNEXE I', h - 215, 14, fontBold, black);
+  centerText('État de remboursement des frais de déplacement pour mission', h - 240, 14, fontBold, black);
 
-  // --- Info block ---
+  // --- Info block (moved up) ---
   const infoX = 70;
-  let y = h - 330;
+  let y = h - 285;
   const labelSize = 10.5;
   const valueSize = 10.5;
   const valueX = 260;
@@ -662,6 +662,47 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     }
   }
 
+  const drawTableHeader = (p, startY) => {
+    const headerTopY = startY;
+    p.drawRectangle({ x: tableX, y: headerTopY - headerH, width: tableW, height: headerH, borderColor: gray, borderWidth: 1 });
+    let cx2 = tableX;
+    for (const c of cols) {
+      p.drawLine({ start: { x: cx2, y: headerTopY }, end: { x: cx2, y: headerTopY - headerH }, thickness: 1, color: gray });
+      p.drawText(c.label, { x: cx2 + 6, y: headerTopY - 15, size: 9.5, font: fontBold, color: black });
+      cx2 += c.w;
+    }
+    p.drawLine({ start: { x: tableX + tableW, y: headerTopY }, end: { x: tableX + tableW, y: headerTopY - headerH }, thickness: 1, color: gray });
+    return headerTopY - headerH;
+  };
+
+  const drawTableRow = (p, rowTopY, l) => {
+    p.drawRectangle({ x: tableX, y: rowTopY - rowH, width: tableW, height: rowH, borderColor: gray, borderWidth: 1 });
+    let cx2 = tableX;
+    const cat = l ? safe(l.cat) : '';
+    const desc = l ? safe(l.desc) : '';
+    const isDep = l && (safe(l.cat) === 'Déplacement');
+    const tarif = isDep ? '0,30€' : '';
+    const kms = isDep ? String(Math.round(l.km || 0)) : '';
+    const montant = l ? `${fmtEUR(l.amt || 0)}€` : '';
+    const cells = [cat, desc, tarif, kms, montant];
+
+    for (let j=0;j<cols.length;j++) {
+      const c = cols[j];
+      p.drawLine({ start: { x: cx2, y: rowTopY }, end: { x: cx2, y: rowTopY - rowH }, thickness: 1, color: gray });
+      const txt = safe(cells[j]);
+      if (c.align === 'right') {
+        const tw = font.widthOfTextAtSize(txt, 10);
+        p.drawText(txt, { x: cx2 + c.w - 6 - tw, y: rowTopY - 14, size: 10, font, color: black });
+      } else {
+        const t = wrapText(txt, c.w - 12, 10, font)[0];
+        p.drawText(t, { x: cx2 + 6, y: rowTopY - 14, size: 10, font, color: black });
+      }
+      cx2 += c.w;
+    }
+    p.drawLine({ start: { x: tableX + tableW, y: rowTopY }, end: { x: tableX + tableW, y: rowTopY - rowH }, thickness: 1, color: gray });
+    return rowTopY - rowH;
+  };
+
   // --- Table ---
   y -= 12;
   const tableX = 85;
@@ -675,50 +716,17 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     { key: 'km', label: 'Kilomètres', w: tableW * 0.16 },
     { key: 'amt', label: 'MONTANT', w: tableW * 0.16, align: 'right' }
   ];
-  // header box
-  page.drawRectangle({ x: tableX, y: y - headerH, width: tableW, height: headerH, borderColor: gray, borderWidth: 1 });
-  let cx = tableX;
-  for (const c of cols) {
-    page.drawLine({ start: { x: cx, y: y }, end: { x: cx, y: y - headerH }, thickness: 1, color: gray });
-    page.drawText(c.label, { x: cx + 6, y: y - 15, size: 9.5, font: fontBold, color: black });
-    cx += c.w;
-  }
-  page.drawLine({ start: { x: tableX + tableW, y: y }, end: { x: tableX + tableW, y: y - headerH }, thickness: 1, color: gray });
-  y -= headerH;
+  y = drawTableHeader(page, y);
 
   // Fit as many rows as possible on the first page without overlapping the bottom blocks
   const minYAfterTable = 250;
   const maxRowsFirstPage = Math.max(0, Math.floor((y - minYAfterTable) / rowH));
   const safeLines = Array.isArray(lines) ? lines : [];
   const firstLines = safeLines.slice(0, Math.min(maxRowsFirstPage, safeLines.length));
-  const overflowLines = safeLines.slice(firstLines.length);
+  let remaining = safeLines.slice(firstLines.length);
 
-  for (let i=0;i<firstLines.length;i++) {
-    const l = firstLines[i];
-    page.drawRectangle({ x: tableX, y: y - rowH, width: tableW, height: rowH, borderColor: gray, borderWidth: 1 });
-    cx = tableX;
-    const cat = l ? safe(l.cat) : '';
-    const desc = l ? safe(l.desc) : '';
-    const isDep = l && (safe(l.cat) === 'Déplacement');
-    const tarif = isDep ? '0,30€' : '';
-    const kms = isDep ? String(Math.round(l.km || 0)) : '';
-    const montant = l ? `${fmtEUR(l.amt || 0)}€` : '';
-    const cells = [cat, desc, tarif, kms, montant];
-    for (let j=0;j<cols.length;j++) {
-      const c = cols[j];
-      page.drawLine({ start: { x: cx, y }, end: { x: cx, y: y - rowH }, thickness: 1, color: gray });
-      const txt = safe(cells[j]);
-      if (c.align === 'right') {
-        const tw = font.widthOfTextAtSize(txt, 10);
-        page.drawText(txt, { x: cx + c.w - 6 - tw, y: y - 14, size: 10, font, color: black });
-      } else {
-        const t = wrapText(txt, c.w - 12, 10, font)[0];
-        page.drawText(t, { x: cx + 6, y: y - 14, size: 10, font, color: black });
-      }
-      cx += c.w;
-    }
-    page.drawLine({ start: { x: tableX + tableW, y }, end: { x: tableX + tableW, y: y - rowH }, thickness: 1, color: gray });
-    y -= rowH;
+  for (const l of firstLines) {
+    y = drawTableRow(page, y, l);
   }
 
   // --- Total box ---
@@ -752,11 +760,28 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   page.drawText(`${safe(nom) || '—'}, ${nowStr}`, { x: leftX + 16, y: boxY + boxH - 36, size: 10, font, color: black });
   page.drawText('Le trésorier :', { x: rightX + 14, y: boxY + boxH - 22, size: 10, font: fontBold, color: black });
 
-  // If overflow lines, add a details page (simple style)
-  if (overflowLines.length > 0) {
-    const details = await createRecapPdfDefault({ nom, lines: overflowLines, total });
-    const detailPages = await pdfDoc.copyPages(details, details.getPageIndices());
-    detailPages.forEach(p => pdfDoc.addPage(p));
+  // Continuation pages: table only, until all lines are rendered (1:1 with web table)
+  while (remaining.length > 0) {
+    const p = pdfDoc.addPage([595.28, 841.89]);
+    const pw = p.getWidth();
+    const ph = p.getHeight();
+    const title = 'ANNEXE I (suite)';
+    const tw = fontBold.widthOfTextAtSize(title, 12);
+    p.drawText(title, { x: (pw - tw) / 2, y: ph - 50, size: 12, font: fontBold, color: black });
+
+    let py = ph - 75;
+    py = drawTableHeader(p, py);
+
+    const minY = 50;
+    const rowsFit = Math.max(0, Math.floor((py - minY) / rowH));
+    const chunk = remaining.slice(0, rowsFit);
+    remaining = remaining.slice(chunk.length);
+    for (const l of chunk) {
+      py = drawTableRow(p, py, l);
+    }
+
+    // safety: prevent infinite loop if something goes wrong with geometry
+    if (chunk.length === 0) break;
   }
 
   return pdfDoc;
@@ -831,15 +856,13 @@ async function generateFinalPdf() {
   recapPages.forEach(p => finalDoc.addPage(p));
 
   // Collect attachments
-  const includeLinkedFirst = el('includeLineJustifsFirst').checked;
-
   const linked = state.justifs
     .filter(j => j.source === 'line')
     .sort((a,b) => (a.lineIndex ?? 0) - (b.lineIndex ?? 0));
 
   const added = state.justifs.filter(j => j.source === 'list');
 
-  const ordered = includeLinkedFirst ? [...linked, ...added] : [...added, ...linked];
+  const ordered = [...linked, ...added];
 
   if (ordered.length > 0) {
     setStatus('Ajout des justificatifs…');

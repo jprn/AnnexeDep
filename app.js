@@ -761,7 +761,13 @@ async function generateFinalPdf() {
   setStatus('Finalisation…');
   const bytes = await finalDoc.save();
 
-  const filenameBase = (ref || 'note_de_frais').replace(/[^a-z0-9_-]+/gi, '_');
+  const missionDate = (dateMission || '').toString().trim();
+  const baseParts = [
+    (nom || '').toString().trim(),
+    missionDate
+  ].filter(Boolean);
+  const rawBase = baseParts.length ? baseParts.join('_') : 'note_de_frais';
+  const filenameBase = rawBase.replace(/[^a-z0-9_-]+/gi, '_');
   const outName = `${filenameBase}_complet.pdf`;
 
   downloadBytes(bytes, outName);

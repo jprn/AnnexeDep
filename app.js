@@ -603,7 +603,8 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   // Treasurer block (left)
   page.drawText('Trésorière : Clotilde PERRIN', { x: 55, y: h - 160, size: 9, font: fontBold, color: gray });
   const treLines = [
-    '24 rue des Justices Bât 35 Appart 181',
+    '24 rue des Justices',
+    'Bât 35 Appart 181',
     '25000 Besançon',
     'Tel : 06 80 54 53 40'
   ];

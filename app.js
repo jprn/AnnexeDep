@@ -565,9 +565,9 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
 
   const logoCandidates = [
     './logos/logo_RBFC.svg',
-    './logos/Logo_FFCO.svg',
+    './logos/LBFCO.png',
     './logos/Logo FFCO.png',
-    './logos/Logo ANS.png',
+    './logos/ANS.png',
   ];
 
   const embedded = [];

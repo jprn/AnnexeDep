@@ -87,7 +87,6 @@ function addLineRow(prefill = {}) {
       <select class="cat">
         <option value="Déplacement">Déplacement</option>
         <option value="Péage">Péage</option>
-        <option value="Carburant">Carburant</option>
         <option value="Repas">Repas</option>
         <option value="Hôtel">Hôtel</option>
         <option value="Parking">Parking</option>
@@ -567,7 +566,8 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   const logoCandidates = [
     './logos/logo_RBFC.svg',
     './logos/Logo_FFCO.svg',
-    './logos/Logo FFCO.png'
+    './logos/Logo FFCO.png',
+    './logos/Logo ANS.png',
   ];
 
   const embedded = [];

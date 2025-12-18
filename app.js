@@ -615,8 +615,8 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   }
 
   // --- Titles (moved up to free space for the table) ---
-  centerText('ANNEXE I', h - 215, 14, fontBold, black);
-  centerText('État de remboursement des frais de déplacement pour mission', h - 240, 14, fontBold, black);
+  centerText('ANNEXE I', h - 225, 14, fontBold, black);
+  centerText('État de remboursement des frais de déplacement pour mission', h - 250, 14, fontBold, black);
 
   // --- Info block (moved up) ---
   const infoX = 70;

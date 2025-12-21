@@ -21,6 +21,8 @@
   --item-bg: rgba(0,0,0,.18);
   --preview-bg: rgba(0,0,0,.18);
   --shadow: 0 10px 30px rgba(0,0,0,.28);
+  --shadow-strong: 0 18px 55px rgba(0,0,0,.42);
+  --table-highlight: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 60%);
   --danger-bg: rgba(255,90,106,.10);
   --danger-border: rgba(255,90,106,.30);
   --danger-text: #ffd5da;
@@ -48,6 +50,8 @@ html[data-theme="light"]{
   --item-bg: rgba(37,99,235,.04);
   --preview-bg: rgba(37,99,235,.04);
   --shadow: 0 10px 30px rgba(11,27,51,.10);
+  --shadow-strong: 0 18px 55px rgba(11,27,51,.18);
+  --table-highlight: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,0) 55%);
   --danger-bg: rgba(220,38,38,.08);
   --danger-border: rgba(220,38,38,.22);
   --danger-text: #7f1d1d;
@@ -193,7 +197,8 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
   color: var(--danger-text);
 }
 
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;box-shadow: var(--shadow)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;box-shadow: var(--shadow-strong);position:relative}
+.table-wrap::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:12px;background: var(--table-highlight)}
 table{width:100%;border-collapse:collapse;min-width:820px}
 th,td{border-bottom:1px solid var(--line);padding:10px 10px;font-size:13px}
 th{position:sticky;top:0;background: var(--table-head-bg);text-align:left}
@@ -206,6 +211,7 @@ tfoot td{background: var(--tfoot-bg)}
 
 @media (max-width: 900px){
   .table-wrap{overflow:visible;border:0;box-shadow:none}
+  .table-wrap::before{display:none}
   #fraisTable{min-width:0;width:100%}
   #fraisTable thead,
   #fraisTable tfoot{display:none}

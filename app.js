@@ -946,8 +946,8 @@ function updateThemeToggleLabel(theme) {
   const btn = el('themeToggle');
   if (!btn) return;
   const t = (theme === 'light') ? 'light' : 'dark';
-  btn.textContent = t === 'light' ? 'Thème : clair' : 'Thème : sombre';
-  btn.setAttribute('aria-label', t === 'light' ? 'Passer en thème sombre' : 'Passer en thème clair');
+  btn.setAttribute('aria-checked', t === 'light' ? 'false' : 'true');
+  btn.setAttribute('aria-label', t === 'light' ? 'Thème : clair. Passer en thème sombre' : 'Thème : sombre. Passer en thème clair');
 }
 
 /* ---------- init ---------- */

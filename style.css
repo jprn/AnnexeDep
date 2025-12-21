@@ -79,6 +79,42 @@ p{margin:8px 0}
 .grid{display:grid;grid-template-columns: 1.3fr .9fr;gap:16px}
 @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
 
+.theme-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  border-radius:999px;
+}
+.theme-toggle-label{font-size:13px}
+.theme-toggle-switch{
+  width:42px;
+  height:24px;
+  border-radius:999px;
+  position:relative;
+  background: var(--btn-bg);
+  border:1px solid var(--line);
+}
+.theme-toggle-thumb{
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  position:absolute;
+  top:50%;
+  left:3px;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, var(--primary), var(--primary2));
+  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+  transition: left 140ms ease;
+}
+html[data-theme="light"] .theme-toggle-thumb{box-shadow: 0 8px 18px rgba(11,27,51,.12)}
+.theme-toggle:focus-visible{outline:none; box-shadow: 0 0 0 3px var(--focus-shadow); border-color: var(--focus-border)}
+
+html[data-theme="light"] .theme-toggle-switch{background: var(--btn-bg)}
+
+html[data-theme="light"] #themeToggle[aria-checked="true"] .theme-toggle-thumb{left:21px}
+html:not([data-theme="light"]) #themeToggle[aria-checked="true"] .theme-toggle-thumb{left:21px}
+
 .card{
   background: linear-gradient(180deg, var(--card-grad-1), var(--card-grad-2));
   border:1px solid var(--line);

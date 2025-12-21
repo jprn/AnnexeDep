@@ -18,7 +18,12 @@
         </a>
         <h1>Note de Déplacement</h1>
       </div>
-      <button id="themeToggle" class="btn btn-ghost" type="button" aria-label="Basculer le thème">Thème</button>
+      <button id="themeToggle" class="btn theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Basculer le thème">
+        <span class="theme-toggle-label">Thème</span>
+        <span class="theme-toggle-switch" aria-hidden="true">
+          <span class="theme-toggle-thumb"></span>
+        </span>
+      </button>
     </div>
     <p class="muted">Remplis le récap, ajoute tes justificatifs (PDF/JPG/PNG), puis génère un PDF unique. Transmettre le document à la trésorière</p>
   </header>

@@ -7,6 +7,7 @@
   --primary:#4ea1ff;
   --primary2:#2f7ee6;
   --danger:#ff5a6a;
+  --control-h: 42px;
   --focus-border: rgba(78,161,255,.5);
   --focus-shadow: rgba(78,161,255,.12);
   --btn-hover-border: rgba(255,255,255,.18);
@@ -36,6 +37,7 @@ html[data-theme="light"]{
   --primary:#2563eb;
   --primary2:#1d4ed8;
   --danger:#dc2626;
+  --control-h: 42px;
   --focus-border: rgba(37,99,235,.45);
   --focus-shadow: rgba(37,99,235,.16);
   --btn-hover-border: rgba(12,40,80,.22);
@@ -159,7 +161,9 @@ input, select{
   border-radius:10px;
   padding:10px 10px;
   outline:none;
+  min-height: var(--control-h);
 }
+select{height: var(--control-h)}
 input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}
 
 .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}

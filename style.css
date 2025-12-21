@@ -1,22 +1,68 @@
 /* Simple, clean UI */
 :root{
   --bg:#0b0f17;
-  --card:#121a2a;
   --muted:#9fb0c6;
   --text:#e8eef7;
   --line:rgba(255,255,255,.08);
   --primary:#4ea1ff;
   --primary2:#2f7ee6;
   --danger:#ff5a6a;
+  --focus-border: rgba(78,161,255,.5);
+  --focus-shadow: rgba(78,161,255,.12);
+  --btn-hover-border: rgba(255,255,255,.18);
+  --bg-grad-1: rgba(78,161,255,.12);
+  --bg-grad-2: rgba(255,90,106,.10);
+  --card-grad-1: rgba(255,255,255,.04);
+  --card-grad-2: rgba(255,255,255,.02);
+  --field-bg: rgba(0,0,0,.25);
+  --btn-bg: rgba(255,255,255,.04);
+  --table-head-bg: rgba(12,18,30,.95);
+  --tfoot-bg: rgba(255,255,255,.02);
+  --item-bg: rgba(0,0,0,.18);
+  --preview-bg: rgba(0,0,0,.18);
+  --shadow: 0 10px 30px rgba(0,0,0,.28);
+  --danger-bg: rgba(255,90,106,.10);
+  --danger-border: rgba(255,90,106,.30);
+  --danger-text: #ffd5da;
 }
+
+html[data-theme="light"]{
+  --bg:#f4f8ff;
+  --muted:#4b6a94;
+  --text:#0b1b33;
+  --line:rgba(12,40,80,.16);
+  --primary:#2563eb;
+  --primary2:#1d4ed8;
+  --danger:#dc2626;
+  --focus-border: rgba(37,99,235,.45);
+  --focus-shadow: rgba(37,99,235,.16);
+  --btn-hover-border: rgba(12,40,80,.22);
+  --bg-grad-1: rgba(37,99,235,.14);
+  --bg-grad-2: rgba(14,165,233,.12);
+  --card-grad-1: rgba(255,255,255,1);
+  --card-grad-2: rgba(244,248,255,1);
+  --field-bg: rgba(255,255,255,.92);
+  --btn-bg: rgba(37,99,235,.06);
+  --table-head-bg: rgba(37,99,235,.08);
+  --tfoot-bg: rgba(37,99,235,.04);
+  --item-bg: rgba(37,99,235,.04);
+  --preview-bg: rgba(37,99,235,.04);
+  --shadow: 0 10px 30px rgba(11,27,51,.10);
+  --danger-bg: rgba(220,38,38,.08);
+  --danger-border: rgba(220,38,38,.22);
+  --danger-text: #7f1d1d;
+}
+
+html{color-scheme: dark}
+html[data-theme="light"]{color-scheme: light}
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background: radial-gradient(1200px 700px at 20% 0%, rgba(78,161,255,.12), transparent 60%),
-              radial-gradient(900px 600px at 90% 10%, rgba(255,90,106,.10), transparent 55%),
+  background: radial-gradient(1200px 700px at 20% 0%, var(--bg-grad-1), transparent 60%),
+              radial-gradient(900px 600px at 90% 10%, var(--bg-grad-2), transparent 55%),
               var(--bg);
   color:var(--text);
 }
@@ -28,16 +74,17 @@ p{margin:8px 0}
 .muted{color:var(--muted)}
 .small{font-size:12px}
 .header-title{display:flex;align-items:center;gap:12px}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .header-logo{height:100px;width:auto;display:block}
 .grid{display:grid;grid-template-columns: 1.3fr .9fr;gap:16px}
 @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
 
 .card{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  background: linear-gradient(180deg, var(--card-grad-1), var(--card-grad-2));
   border:1px solid var(--line);
   border-radius:14px;
   padding:16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.28);
+  box-shadow: var(--shadow);
 }
 
 .form-grid{
@@ -49,14 +96,14 @@ p{margin:8px 0}
 
 label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
 input, select{
-  background: rgba(0,0,0,.25);
+  background: var(--field-bg);
   border:1px solid var(--line);
   color:var(--text);
   border-radius:10px;
   padding:10px 10px;
   outline:none;
 }
-input:focus, select:focus{border-color: rgba(78,161,255,.5); box-shadow: 0 0 0 3px rgba(78,161,255,.12);}
+input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}
 
 .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
  label.row{flex-direction:row}
@@ -74,32 +121,32 @@ input:focus, select:focus{border-color: rgba(78,161,255,.5); box-shadow: 0 0 0 3
  }
 .btn{
   border:1px solid var(--line);
-  background: rgba(255,255,255,.04);
+  background: var(--btn-bg);
   color:var(--text);
   padding:10px 12px;
   border-radius:12px;
   cursor:pointer;
   font-weight:600;
 }
-.btn:hover{border-color: rgba(255,255,255,.18)}
+.btn:hover{border-color: var(--btn-hover-border)}
 .btn-primary{
   background: linear-gradient(180deg, var(--primary), var(--primary2));
   border-color: rgba(0,0,0,.2);
 }
 .btn-ghost{background:transparent}
 .btn-danger{
-  background: rgba(255,90,106,.10);
-  border-color: rgba(255,90,106,.30);
-  color: #ffd5da;
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
 .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
 table{width:100%;border-collapse:collapse;min-width:820px}
 th,td{border-bottom:1px solid var(--line);padding:10px 10px;font-size:13px}
-th{position:sticky;top:0;background: rgba(12,18,30,.95);text-align:left}
+th{position:sticky;top:0;background: var(--table-head-bg);text-align:left}
 td.right{text-align:right}
 td.num, th.num{text-align:right; font-variant-numeric: tabular-nums;}
-tfoot td{background: rgba(255,255,255,.02)}
+tfoot td{background: var(--tfoot-bg)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px}
 
  #fraisTable{table-layout:fixed}
@@ -127,7 +174,7 @@ tfoot td{background: rgba(255,255,255,.02)}
 .item{
   display:flex;justify-content:space-between;align-items:center;gap:10px;
   border:1px solid var(--line); border-radius:12px;
-  padding:10px;background: rgba(0,0,0,.18)
+  padding:10px;background: var(--item-bg)
 }
 .item .meta{display:flex;flex-direction:column;gap:2px}
 .item .meta .name{font-weight:700}
@@ -145,5 +192,5 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0}
  .legal{margin-top:14px}
  .legal h3{margin:14px 0 6px;font-size:14px}
 
- .preview{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background: rgba(0,0,0,.18)}
+ .preview{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background: var(--preview-bg)}
  .preview-frame{width:100%;height:620px;border:0;display:block;background:#fff}

@@ -909,6 +909,33 @@ function downloadBytes(bytes, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
+function getInitialTheme() {
+  const stored = (localStorage.getItem('theme') || '').trim();
+  if (stored === 'light' || stored === 'dark') return stored;
+  const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  return prefersLight ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+  const t = (theme === 'light') ? 'light' : 'dark';
+  document.documentElement.dataset.theme = t;
+}
+
+function setTheme(theme) {
+  const t = (theme === 'light') ? 'light' : 'dark';
+  applyTheme(t);
+  localStorage.setItem('theme', t);
+  return t;
+}
+
+function updateThemeToggleLabel(theme) {
+  const btn = el('themeToggle');
+  if (!btn) return;
+  const t = (theme === 'light') ? 'light' : 'dark';
+  btn.textContent = t === 'light' ? 'Thème : clair' : 'Thème : sombre';
+  btn.setAttribute('aria-label', t === 'light' ? 'Passer en thème sombre' : 'Passer en thème clair');
+}
+
 /* ---------- init ---------- */
 function resetAll() {
   // clear table
@@ -925,6 +952,20 @@ function resetAll() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  const initialTheme = getInitialTheme();
+  applyTheme(initialTheme);
+  updateThemeToggleLabel(initialTheme);
+
+  const themeToggle = el('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+      const next = current === 'light' ? 'dark' : 'light';
+      const applied = setTheme(next);
+      updateThemeToggleLabel(applied);
+    });
+  }
+
   // default rows
   addLineRow({ cat: 'Déplacement' });
   addLineRow({ cat: 'Repas' });

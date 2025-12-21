@@ -123,6 +123,7 @@ function addLineRow(prefill = {}) {
   const applyDeplacementRules = () => {
     const cat = (catEl.value || '').trim();
     const isDep = cat === 'Déplacement';
+    tr.classList.toggle('is-nondep', !isDep);
     if (isDep) {
       kmEl.disabled = false;
       kmEl.style.display = '';
@@ -138,7 +139,7 @@ function addLineRow(prefill = {}) {
       kmEl.value = '';
       kmEl.disabled = true;
       kmEl.style.display = 'none';
-      if (kmTd) kmTd.style.display = 'none';
+      if (kmTd) kmTd.style.display = '';
     }
     updateTotal();
   };

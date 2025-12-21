@@ -94,6 +94,7 @@ p{margin:8px 0}
   position:relative;
   background: var(--btn-bg);
   border:1px solid var(--line);
+  overflow:hidden;
 }
 .theme-toggle-icons{
   position:absolute;
@@ -103,10 +104,11 @@ p{margin:8px 0}
   justify-content:space-between;
   padding:0 6px;
   pointer-events:none;
+  z-index:2;
 }
-.theme-toggle-icon{font-size:12px; line-height:1; opacity:.85; transition: opacity 140ms ease}
+.theme-toggle-icon{font-size:12px; line-height:1; opacity:.9; transition: opacity 140ms ease}
 html[data-theme="light"] .theme-toggle-icon-sun{opacity:1}
-html[data-theme="light"] .theme-toggle-icon-moon{opacity:.25}
+html[data-theme="light"] .theme-toggle-icon-moon{opacity:.55}
 html:not([data-theme="light"]) .theme-toggle-icon-sun{opacity:.25}
 html:not([data-theme="light"]) .theme-toggle-icon-moon{opacity:1}
 .theme-toggle-thumb{
@@ -120,6 +122,7 @@ html:not([data-theme="light"]) .theme-toggle-icon-moon{opacity:1}
   background: linear-gradient(180deg, var(--primary), var(--primary2));
   box-shadow: 0 8px 18px rgba(0,0,0,.18);
   transition: left 140ms ease;
+  z-index:1;
 }
 html[data-theme="light"] .theme-toggle-thumb{box-shadow: 0 8px 18px rgba(11,27,51,.12)}
 .theme-toggle:focus-visible{outline:none; box-shadow: 0 0 0 3px var(--focus-shadow); border-color: var(--focus-border)}

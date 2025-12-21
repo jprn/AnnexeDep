@@ -683,7 +683,9 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     let cx2 = tableX;
     for (const c of cols) {
       p.drawLine({ start: { x: cx2, y: headerTopY }, end: { x: cx2, y: headerTopY - headerH }, thickness: 1, color: gray });
-      p.drawText(c.label, { x: cx2 + 6, y: headerTopY - 15, size: 9.5, font: fontBold, color: black });
+      const thSize = 9.5;
+      const thW = fontBold.widthOfTextAtSize(c.label, thSize);
+      p.drawText(c.label, { x: cx2 + (c.w - thW) / 2, y: headerTopY - 15, size: thSize, font: fontBold, color: black });
       cx2 += c.w;
     }
     p.drawLine({ start: { x: tableX + tableW, y: headerTopY }, end: { x: tableX + tableW, y: headerTopY - headerH }, thickness: 1, color: gray });
@@ -705,13 +707,9 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
       const c = cols[j];
       p.drawLine({ start: { x: cx2, y: rowTopY }, end: { x: cx2, y: rowTopY - rowH }, thickness: 1, color: gray });
       const txt = safe(cells[j]);
-      if (c.align === 'right') {
-        const tw = font.widthOfTextAtSize(txt, 10);
-        p.drawText(txt, { x: cx2 + c.w - 6 - tw, y: rowTopY - 14, size: 10, font, color: black });
-      } else {
-        const t = wrapText(txt, c.w - 12, 10, font)[0];
-        p.drawText(t, { x: cx2 + 6, y: rowTopY - 14, size: 10, font, color: black });
-      }
+      const t = wrapText(txt, c.w - 12, 10, font)[0];
+      const tw = font.widthOfTextAtSize(t, 10);
+      p.drawText(t, { x: cx2 + (c.w - tw) / 2, y: rowTopY - 14, size: 10, font, color: black });
       cx2 += c.w;
     }
     p.drawLine({ start: { x: tableX + tableW, y: rowTopY }, end: { x: tableX + tableW, y: rowTopY - rowH }, thickness: 1, color: gray });
@@ -751,7 +749,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   const totalX = (w - totalBoxW) / 2;
   page.drawRectangle({ x: totalX, y: y - totalBoxH, width: totalBoxW, height: totalBoxH, borderColor: gray, borderWidth: 1 });
   page.drawText('Total général :', { x: totalX + 14, y: y - 22, size: 12, font: fontBold, color: black });
-  const totalStr = `€ ${fmtEUR(total)}`;
+  const totalStr = `${fmtEUR(total)} €`;
   const tw = fontBold.widthOfTextAtSize(totalStr, 12);
   page.drawText(totalStr, { x: totalX + totalBoxW - 14 - tw, y: y - 22, size: 12, font: fontBold, color: black });
 

@@ -103,6 +103,14 @@ function addLineRow(prefill = {}) {
     <td class="right"><button class="btn btn-danger delRow">Suppr</button></td>
   `;
 
+  const tds = tr.querySelectorAll('td');
+  if (tds[0]) { tds[0].dataset.label = 'Catégorie'; tds[0].classList.add('cell-cat'); }
+  if (tds[1]) { tds[1].dataset.label = 'Description'; tds[1].classList.add('cell-desc'); }
+  if (tds[2]) { tds[2].dataset.label = 'Km'; tds[2].classList.add('cell-km'); }
+  if (tds[3]) { tds[3].dataset.label = 'Montant (€)'; tds[3].classList.add('cell-amt'); }
+  if (tds[4]) { tds[4].dataset.label = 'Justificatif'; tds[4].classList.add('cell-justif'); }
+  if (tds[5]) { tds[5].dataset.label = 'Actions'; tds[5].classList.add('cell-actions'); }
+
   // set category
   tr.querySelector('.cat').value = prefill.cat || 'Déplacement';
 
@@ -110,6 +118,7 @@ function addLineRow(prefill = {}) {
   const kmEl = tr.querySelector('.km');
   const amtEl = tr.querySelector('.amt');
   const catEl = tr.querySelector('.cat');
+  const kmTd = kmEl?.closest('td');
 
   const applyDeplacementRules = () => {
     const cat = (catEl.value || '').trim();
@@ -117,6 +126,7 @@ function addLineRow(prefill = {}) {
     if (isDep) {
       kmEl.disabled = false;
       kmEl.style.display = '';
+      if (kmTd) kmTd.style.display = '';
       const km = parseFloat(kmEl.value || '0') || 0;
       const amt = km * DEPLACEMENT_TARIF_EUR_KM;
       amtEl.value = amt ? amt.toFixed(2) : '';
@@ -128,6 +138,7 @@ function addLineRow(prefill = {}) {
       kmEl.value = '';
       kmEl.disabled = true;
       kmEl.style.display = 'none';
+      if (kmTd) kmTd.style.display = 'none';
     }
     updateTotal();
   };
@@ -207,6 +218,8 @@ function updateTotal() {
   const lines = getLinesData();
   const total = lines.reduce((s, l) => s + (Number.isFinite(l.amt) ? l.amt : 0), 0);
   el('totalEuros').textContent = fmtEUR(total);
+  const mobile = el('totalEurosMobile');
+  if (mobile) mobile.textContent = fmtEUR(total);
 }
 
 /* ---------- Justifs list ---------- */

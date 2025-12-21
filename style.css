@@ -149,6 +149,58 @@ td.num, th.num{text-align:right; font-variant-numeric: tabular-nums;}
 tfoot td{background: var(--tfoot-bg)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px}
 
+.total-mobile{display:none}
+
+@media (max-width: 900px){
+  .table-wrap{overflow:visible;border:0}
+  #fraisTable{min-width:0;width:100%}
+  #fraisTable thead,
+  #fraisTable tfoot{display:none}
+  #fraisTable,
+  #fraisTable tbody,
+  #fraisTable tr,
+  #fraisTable td{display:block}
+  #fraisTable tr{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px;
+    background: linear-gradient(180deg, var(--card-grad-1), var(--card-grad-2));
+    box-shadow: var(--shadow);
+    margin:10px 0;
+  }
+  #fraisTable td{
+    border-bottom:0;
+    padding:8px 0;
+    text-align:left !important;
+  }
+  #fraisTable td::before{
+    content: attr(data-label);
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  #fraisTable td.cell-actions{padding-top:10px}
+  #fraisTable td.cell-actions::before{display:none}
+  #fraisTable td.cell-actions .btn{width:100%}
+
+  #fraisTable input,
+  #fraisTable select{width:100%; text-align:left !important}
+
+  .total-mobile{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:10px;
+    padding:12px 12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background: var(--tfoot-bg);
+  }
+  .total-mobile strong{font-size:18px; font-variant-numeric: tabular-nums;}
+}
+
  #fraisTable{table-layout:fixed}
  #fraisTable th,
  #fraisTable td{text-align:center; vertical-align:middle}

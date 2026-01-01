@@ -992,7 +992,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (expenseTypeValidateBtn) {
     expenseTypeValidateBtn.addEventListener('click', () => {
-      void (expenseTypeSelect?.value);
       closeExpenseTypeModal();
     });
   }

@@ -109,14 +109,16 @@
       <hr />
 
       <h2>Génération</h2>
-      <label class="row">
-        <input id="renonceIndemnites" type="checkbox" />
-        <span>Je renonce au paiement de ces indemnités</span>
-      </label>
+      <div class="gen-bar">
+        <label class="row gen-bar-left">
+          <input id="renonceIndemnites" type="checkbox" />
+          <span>Je renonce au paiement de ces indemnités</span>
+        </label>
 
-      <div class="row">
-        <button id="generateBtn" class="btn btn-primary">📄 Générer le PDF final</button>
-        <button id="downloadBtn" class="btn" disabled>Télécharger</button>
+        <div class="gen-bar-right">
+          <button id="generateBtn" class="btn btn-primary btn-xl">📄 Générer le PDF final</button>
+          <button id="downloadBtn" class="btn btn-xl" disabled>Télécharger</button>
+        </div>
       </div>
 
       <div id="pdfPreviewWrap" class="preview" hidden>

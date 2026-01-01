@@ -645,14 +645,32 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
 
   // --- Titles (moved up to free space for the table) ---
   const typeLine = (expenseType || '').trim();
-  const annexeTitle = typeLine === 'Frais de formation 30%'
-    ? 'ANNEXE II'
-    : 'ANNEXE I';
-  const mainTitle = typeLine === 'Frais de formation 30%'
-    ? 'Frais formation 30 %'
-    : (typeLine ? `État de remboursement — ${typeLine}` : 'État de remboursement des frais de déplacement pour mission');
-  centerText(annexeTitle, h - 225, 14, fontBold, black);
-  centerText(mainTitle, h - 250, 14, fontBold, black);
+  const pdfTitlesByType = {
+    'Frais de déplacement': {
+      annexeTitle: 'ANNEXE I',
+      mainTitle: 'État de remboursement des frais de déplacement pour mission'
+    },
+    'Frais de formation 30%': {
+      annexeTitle: 'ANNEXE II',
+      mainTitle: 'Frais formation 30 %'
+    },
+    'Frais de formation féminine 100 %': {
+      annexeTitle: 'ANNEXE III',
+      mainTitle: 'Frais formation féminine 100 %'
+    },
+    'Frais divers': {
+      annexeTitle: 'ANNEXE IV',
+      mainTitle: 'Frais divers'
+    }
+  };
+
+  const resolved = pdfTitlesByType[typeLine] || {
+    annexeTitle: 'ANNEXE I',
+    mainTitle: 'État de remboursement des frais de déplacement pour mission'
+  };
+
+  centerText(resolved.annexeTitle, h - 225, 14, fontBold, black);
+  centerText(resolved.mainTitle, h - 250, 14, fontBold, black);
 
   // --- Info block (moved up) ---
   const infoX = 70;

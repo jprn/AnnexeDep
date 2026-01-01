@@ -71,6 +71,7 @@ body{
               radial-gradient(900px 600px at 90% 10%, var(--bg-grad-2), transparent 55%),
               var(--bg);
   color:var(--text);
+  font-size:16px;
 }
 
 .container{max-width:1100px;margin:0 auto;padding:18px}
@@ -153,7 +154,7 @@ html:not([data-theme="light"]) #themeToggle[aria-checked="true"] .theme-toggle-t
 }
 @media (max-width: 520px){ .form-grid{grid-template-columns:1fr} }
 
-label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
 input, select{
   background: var(--field-bg);
   border:1px solid var(--line);
@@ -162,6 +163,7 @@ input, select{
   padding:10px 10px;
   outline:none;
   min-height: var(--control-h);
+  font-size:15px;
 }
 select{height: var(--control-h)}
 input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}
@@ -204,7 +206,7 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
 .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;box-shadow: var(--shadow-strong);position:relative}
 .table-wrap::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:12px;background: var(--table-highlight)}
 table{width:100%;border-collapse:collapse;min-width:820px}
-th,td{border-bottom:1px solid var(--line);padding:10px 10px;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:10px 10px;font-size:14px}
 th{position:sticky;top:0;background: var(--table-head-bg);text-align:left}
 td.right{text-align:right}
 td.num, th.num{text-align:right; font-variant-numeric: tabular-nums;}

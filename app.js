@@ -8,6 +8,7 @@ const { PDFDocument, StandardFonts, rgb } = window.PDFLib || {};
 const state = {
   lineRows: [],
   justifs: [], // { id, file, name, type, size, source: 'list'|'line', lineIndex? }
+  expenseType: null,
 };
 
 const DEPLACEMENT_TARIF_EUR_KM = 0.3;
@@ -221,6 +222,20 @@ function updateTotal() {
   el('totalEuros').textContent = fmtEUR(total);
   const mobile = el('totalEurosMobile');
   if (mobile) mobile.textContent = fmtEUR(total);
+
+  const isFormation30 = (state.expenseType || '') === 'Frais de formation 30%';
+  const leagueRate = isFormation30 ? 0.3 : 0;
+  const leagueShare = total * leagueRate;
+
+  const leagueRow = el('leagueShareRow');
+  const leagueMobileWrap = el('leagueShareMobile');
+  const leagueTotalEl = el('leagueShareEuros');
+  const leagueTotalMobileEl = el('leagueShareEurosMobile');
+
+  if (leagueRow) leagueRow.hidden = !isFormation30;
+  if (leagueMobileWrap) leagueMobileWrap.hidden = !isFormation30;
+  if (leagueTotalEl) leagueTotalEl.textContent = fmtEUR(leagueShare);
+  if (leagueTotalMobileEl) leagueTotalMobileEl.textContent = fmtEUR(leagueShare);
 }
 
 /* ---------- Justifs list ---------- */
@@ -452,7 +467,7 @@ async function createRecapPdfDefault({ nom, lines, total }) {
   return pdfDoc;
 }
 
-async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, lines, total }) {
+async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, expenseType, lines, total, leagueRate }) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait
 
@@ -629,8 +644,15 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   }
 
   // --- Titles (moved up to free space for the table) ---
-  centerText('ANNEXE I', h - 225, 14, fontBold, black);
-  centerText('État de remboursement des frais de déplacement pour mission', h - 250, 14, fontBold, black);
+  const typeLine = (expenseType || '').trim();
+  const annexeTitle = typeLine === 'Frais de formation 30%'
+    ? 'ANNEXE II'
+    : 'ANNEXE I';
+  const mainTitle = typeLine === 'Frais de formation 30%'
+    ? 'Frais formation 30 %'
+    : (typeLine ? `État de remboursement — ${typeLine}` : 'État de remboursement des frais de déplacement pour mission');
+  centerText(annexeTitle, h - 225, 14, fontBold, black);
+  centerText(mainTitle, h - 250, 14, fontBold, black);
 
   // --- Info block (moved up) ---
   const infoX = 70;
@@ -745,13 +767,23 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   // --- Total box ---
   y -= 18;
   const totalBoxW = 320;
-  const totalBoxH = 34;
+  const showLeague = Number.isFinite(leagueRate) && leagueRate > 0;
+  const totalBoxH = showLeague ? 52 : 34;
   const totalX = (w - totalBoxW) / 2;
   page.drawRectangle({ x: totalX, y: y - totalBoxH, width: totalBoxW, height: totalBoxH, borderColor: gray, borderWidth: 1 });
   page.drawText('Total général :', { x: totalX + 14, y: y - 22, size: 12, font: fontBold, color: black });
   const totalStr = `${fmtEUR(total)} €`;
   const tw = fontBold.widthOfTextAtSize(totalStr, 12);
   page.drawText(totalStr, { x: totalX + totalBoxW - 14 - tw, y: y - 22, size: 12, font: fontBold, color: black });
+
+  if (showLeague) {
+    const leagueShare = (Number.isFinite(total) ? total : 0) * leagueRate;
+    const label = `Pris en charge ligue (${Math.round(leagueRate * 100)}%) :`;
+    page.drawText(label, { x: totalX + 14, y: y - 40, size: 11, font: fontBold, color: black });
+    const leagueStr = `${fmtEUR(leagueShare)} €`;
+    const tw2 = fontBold.widthOfTextAtSize(leagueStr, 11);
+    page.drawText(leagueStr, { x: totalX + totalBoxW - 14 - tw2, y: y - 40, size: 11, font: fontBold, color: black });
+  }
 
   // --- Certification (red) ---
   y -= 50;
@@ -859,9 +891,12 @@ async function generateFinalPdf() {
   const lines = getLinesData();
   const total = lines.reduce((s, l) => s + (l.amt || 0), 0);
 
+  const expenseType = (state.expenseType || '').trim();
+  const leagueRate = expenseType === 'Frais de formation 30%' ? 0.3 : 0;
+
   // Build recap
   setStatus('Génération du récap PDF…');
-  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, lines, total });
+  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, expenseType, lines, total, leagueRate });
 
   // Create final doc + copy recap pages
   const finalDoc = await PDFDocument.create();
@@ -899,6 +934,7 @@ async function generateFinalPdf() {
   const missionDate = (dateMission || '').toString().trim();
   const baseParts = [
     (nom || '').toString().trim(),
+    expenseType,
     missionDate
   ].filter(Boolean);
   const rawBase = baseParts.length ? baseParts.join('_') : 'note_de_frais';
@@ -967,6 +1003,7 @@ function resetAll() {
   state.lineRows = [];
   // clear justifs
   state.justifs = [];
+  state.expenseType = null;
   const justifsInput = el('justifsInput');
   if (justifsInput) justifsInput.value = '';
   clearGeneratedPreview();
@@ -992,6 +1029,8 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (expenseTypeValidateBtn) {
     expenseTypeValidateBtn.addEventListener('click', () => {
+      state.expenseType = (expenseTypeSelect?.value || '').trim() || null;
+      updateTotal();
       closeExpenseTypeModal();
     });
   }

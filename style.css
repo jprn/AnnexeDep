@@ -74,7 +74,7 @@ body{
   font-size:16px;
 }
 
-.container{max-width:1100px;margin:0 auto;padding:18px}
+.container{max-width:1240px;margin:0 auto;padding:18px}
 h1{margin:8px 0 6px;font-size:28px}
 h2{margin:16px 0 10px;font-size:18px}
 p{margin:8px 0}
@@ -163,7 +163,7 @@ input, select{
   padding:10px 10px;
   outline:none;
   min-height: var(--control-h);
-  font-size:15px;
+  font-size:16px;
 }
 select{height: var(--control-h)}
 input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}

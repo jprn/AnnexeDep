@@ -771,22 +771,29 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   const totalBoxH = showLeague ? 52 : 34;
   const totalX = (w - totalBoxW) / 2;
   page.drawRectangle({ x: totalX, y: y - totalBoxH, width: totalBoxW, height: totalBoxH, borderColor: gray, borderWidth: 1 });
-  page.drawText('Total général :', { x: totalX + 14, y: y - 22, size: 12, font: fontBold, color: black });
+  const totalLabelSize = 11;
+  const totalValueSize = 11;
+  page.drawText('Total général :', { x: totalX + 14, y: y - 22, size: totalLabelSize, font: fontBold, color: black });
   const totalStr = `${fmtEUR(total)} €`;
-  const tw = fontBold.widthOfTextAtSize(totalStr, 12);
-  page.drawText(totalStr, { x: totalX + totalBoxW - 14 - tw, y: y - 22, size: 12, font: fontBold, color: black });
+  const tw = fontBold.widthOfTextAtSize(totalStr, totalValueSize);
+  page.drawText(totalStr, { x: totalX + totalBoxW - 14 - tw, y: y - 22, size: totalValueSize, font: fontBold, color: black });
 
   if (showLeague) {
     const leagueShare = (Number.isFinite(total) ? total : 0) * leagueRate;
     const label = `Pris en charge ligue (${Math.round(leagueRate * 100)}%) :`;
-    page.drawText(label, { x: totalX + 14, y: y - 40, size: 11, font: fontBold, color: black });
+    const leagueLabelSize = 11;
+    const leagueValueSize = 14;
+    page.drawText(label, { x: totalX + 14, y: y - 40, size: leagueLabelSize, font: fontBold, color: black });
     const leagueStr = `${fmtEUR(leagueShare)} €`;
-    const tw2 = fontBold.widthOfTextAtSize(leagueStr, 11);
-    page.drawText(leagueStr, { x: totalX + totalBoxW - 14 - tw2, y: y - 40, size: 11, font: fontBold, color: black });
+    const tw2 = fontBold.widthOfTextAtSize(leagueStr, leagueValueSize);
+    page.drawText(leagueStr, { x: totalX + totalBoxW - 14 - tw2, y: y - 41, size: leagueValueSize, font: fontBold, color: black });
   }
 
+  // Move cursor below the total box to avoid overlap with the red certification line
+  y = y - totalBoxH;
+
   // --- Certification (red) ---
-  y -= 50;
+  y -= 34;
   centerText('Je certifie ne pas me faire rembourser mes frais plusieurs fois.', y, 10.5, fontBold, red);
 
   if (renonceIndemnites) {

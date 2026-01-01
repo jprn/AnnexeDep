@@ -217,9 +217,9 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
 .btn-primary{
   background:
     linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 55%),
-    linear-gradient(180deg, var(--primary), var(--primary2));
-  border-color: rgba(255,255,255,.18);
-  box-shadow: 0 10px 22px rgba(78,161,255,.18);
+    linear-gradient(180deg, #22c55e, #16a34a);
+  border-color: rgba(255,255,255,.22);
+  box-shadow: 0 10px 22px rgba(34,197,94,.20);
 }
 .btn-ghost{background:transparent}
 .btn-danger{

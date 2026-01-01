@@ -91,6 +91,8 @@ p{margin:8px 0}
   .header-title{gap:10px}
   .theme-toggle{width:100%; justify-content:space-between}
   .row .btn{flex:1}
+
+  #dateMission{width:100%}
 }
 
 .theme-toggle{
@@ -174,6 +176,18 @@ input, select{
 }
 select{height: var(--control-h)}
 input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}
+
+ #dateMission{
+  width: 220px;
+  max-width: 100%;
+ }
+
+ input[type="date"]::-webkit-calendar-picker-indicator{
+  transform: scale(1.35);
+  transform-origin: center;
+  cursor: pointer;
+  opacity: .9;
+ }
 
 .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
  label.row{flex-direction:row}

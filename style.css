@@ -201,8 +201,11 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
 }
 .btn:hover{border-color: var(--btn-hover-border)}
 .btn-primary{
-  background: linear-gradient(180deg, var(--primary), var(--primary2));
-  border-color: rgba(0,0,0,.2);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, var(--primary), var(--primary2));
+  border-color: rgba(255,255,255,.18);
+  box-shadow: 0 10px 22px rgba(78,161,255,.18);
 }
 .btn-ghost{background:transparent}
 .btn-danger{
@@ -212,7 +215,7 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
 }
 
 .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;box-shadow: var(--shadow-strong);position:relative}
-.table-wrap::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:12px;background: var(--table-highlight)}
+.table-wrap::before{content:"";position:absolute;left:0;right:0;top:0;height:52px;pointer-events:none;border-radius:12px 12px 0 0;background: var(--table-highlight)}
 table{width:100%;border-collapse:collapse;min-width:820px}
 th,td{border-bottom:1px solid var(--line);padding:10px 10px;font-size:14px}
 th{position:sticky;top:0;background: var(--table-head-bg);text-align:left}
@@ -320,7 +323,10 @@ tfoot td{background: var(--tfoot-bg)}
  #fraisTable th:nth-child(5),
  #fraisTable td:nth-child(5){width:220px}
  #fraisTable th:nth-child(6),
- #fraisTable td:nth-child(6){width:80px}
+ #fraisTable td:nth-child(6){width:92px}
+
+ #fraisTable th:nth-child(6),
+ #fraisTable td:nth-child(6){padding-right:16px}
 
  #fraisTable input,
  #fraisTable select{width:100%; text-align:center}

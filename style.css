@@ -71,20 +71,27 @@ body{
               radial-gradient(900px 600px at 90% 10%, var(--bg-grad-2), transparent 55%),
               var(--bg);
   color:var(--text);
-  font-size:16px;
+  font-size:clamp(15px, 1.2vw, 16px);
 }
 
 .container{max-width:1500px;margin:0 auto;padding:18px}
-h1{margin:8px 0 6px;font-size:28px}
-h2{margin:16px 0 10px;font-size:18px}
+h1{margin:8px 0 6px;font-size:clamp(22px, 2.4vw, 30px)}
+h2{margin:16px 0 10px;font-size:clamp(16px, 1.6vw, 20px)}
 p{margin:8px 0}
 .muted{color:var(--muted)}
 .small{font-size:12px}
 .header-title{display:flex;align-items:center;gap:12px}
 .header-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.header-logo{height:100px;width:auto;display:block}
+.header-logo{height:clamp(70px, 10vw, 100px);width:auto;display:block}
 .grid{display:grid;grid-template-columns: 1.3fr .9fr;gap:16px}
 @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+@media (max-width: 620px){
+  .container{padding:12px}
+  .header-title{gap:10px}
+  .theme-toggle{width:100%; justify-content:space-between}
+  .row .btn{flex:1}
+}
 
 .theme-toggle{
   display:inline-flex;
@@ -274,7 +281,7 @@ tfoot td{background: var(--tfoot-bg)}
  #fraisTable td.num,
  #fraisTable th.num{text-align:center}
  #fraisTable th:nth-child(1),
- #fraisTable td:nth-child(1){width:140px}
+ #fraisTable td:nth-child(1){width:200px}
  #fraisTable th:nth-child(3),
  #fraisTable td:nth-child(3){width:90px}
  #fraisTable th:nth-child(4),

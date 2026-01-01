@@ -948,6 +948,18 @@ function updateThemeToggleLabel(theme) {
   btn.setAttribute('aria-label', t === 'light' ? 'Thème : clair. Passer en thème sombre' : 'Thème : sombre. Passer en thème clair');
 }
 
+function openExpenseTypeModal() {
+  const modal = el('expenseTypeModal');
+  if (!modal) return;
+  modal.hidden = false;
+}
+
+function closeExpenseTypeModal() {
+  const modal = el('expenseTypeModal');
+  if (!modal) return;
+  modal.hidden = true;
+}
+
 /* ---------- init ---------- */
 function resetAll() {
   // clear table
@@ -967,6 +979,31 @@ window.addEventListener('DOMContentLoaded', () => {
   const initialTheme = getInitialTheme();
   applyTheme(initialTheme);
   updateThemeToggleLabel(initialTheme);
+
+  openExpenseTypeModal();
+
+  const expenseTypeModal = el('expenseTypeModal');
+  const expenseTypeCloseBtn = el('expenseTypeCloseBtn');
+  const expenseTypeValidateBtn = el('expenseTypeValidateBtn');
+  const expenseTypeSelect = el('expenseTypeSelect');
+
+  if (expenseTypeCloseBtn) {
+    expenseTypeCloseBtn.addEventListener('click', closeExpenseTypeModal);
+  }
+  if (expenseTypeValidateBtn) {
+    expenseTypeValidateBtn.addEventListener('click', () => {
+      void (expenseTypeSelect?.value);
+      closeExpenseTypeModal();
+    });
+  }
+  if (expenseTypeModal) {
+    expenseTypeModal.addEventListener('click', (e) => {
+      if (e.target === expenseTypeModal) closeExpenseTypeModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !expenseTypeModal.hidden) closeExpenseTypeModal();
+    });
+  }
 
   const themeToggle = el('themeToggle');
   if (themeToggle) {

@@ -312,3 +312,45 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0}
 
  .preview{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background: var(--preview-bg)}
  .preview-frame{width:100%;height:620px;border:0;display:block;background:#fff}
+
+ .modal-overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+ }
+
+ .modal{
+  width:min(520px, 100%);
+  background: linear-gradient(180deg, var(--card-grad-1), var(--card-grad-2));
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow: var(--shadow-strong);
+  padding:16px;
+ }
+
+ .modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+ }
+
+ .modal-title{
+  margin:0;
+  font-size:18px;
+ }
+
+ .modal-body{margin-top:12px}
+
+ .modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:14px;
+ }

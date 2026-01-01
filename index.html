@@ -45,15 +45,15 @@
           <input id="adresse" type="text" placeholder="Ex: 10 rue de la Libération, 21320 Vandenesse-en-Auxois" />
         </label>
         <label>
-          Motif du déplacement
+          Motif
           <input id="motif" type="text" placeholder="Ex: Rendez-vous des Ligues" />
         </label>
         <label>
-          Lieu du déplacement
+          Lieu
           <input id="lieu" type="text" placeholder="Ex: Maison des Sports de Besançon" />
         </label>
         <label>
-          Date de la mission
+          Date
           <input id="dateMission" type="date" />
         </label>
       </div>
@@ -124,5 +124,30 @@
   <footer class="container footer">
     <span class="muted small">Développé par Jerome PERRIN — © Tous droits réservés </span>
   </footer>
+
+  <div id="expenseTypeModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="expenseTypeTitle" hidden>
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h2 id="expenseTypeTitle" class="modal-title">Type de frais</h2>
+        <button id="expenseTypeCloseBtn" class="btn btn-ghost" type="button" aria-label="Fermer">Fermer</button>
+      </div>
+
+      <div class="modal-body">
+        <label>
+          Sélectionne le type de frais
+          <select id="expenseTypeSelect">
+            <option value="Frais de déplacement">Frais de déplacement</option>
+            <option value="Frais de formation 30%">Frais de formation 30%</option>
+            <option value="Frais de formation féminine 100 %">Frais de formation féminine 100 %</option>
+            <option value="Frais divers">Frais divers</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button id="expenseTypeValidateBtn" class="btn btn-primary" type="button">Valider</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

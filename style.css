@@ -325,6 +325,10 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0}
   z-index: 1000;
  }
 
+ .modal-overlay[hidden]{
+  display:none;
+ }
+
  .modal{
   width:min(520px, 100%);
   background: linear-gradient(180deg, var(--card-grad-1), var(--card-grad-2));

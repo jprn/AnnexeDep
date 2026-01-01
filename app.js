@@ -1021,6 +1021,19 @@ function closeExpenseTypeModal() {
   modal.hidden = true;
 }
 
+function updatePageTitleFromExpenseType() {
+  const title = el('pageTitle');
+  if (!title) return;
+  const typeLine = (state.expenseType || '').trim();
+  const titles = {
+    'Frais de déplacement': 'Récapitulatif des frais — Frais de déplacement',
+    'Frais de formation 30%': 'Récapitulatif des frais — Frais de formation 30%',
+    'Frais de formation féminine 100 %': 'Récapitulatif des frais — Frais de formation féminine 100 %',
+    'Frais divers': 'Récapitulatif des frais — Frais divers'
+  };
+  title.textContent = titles[typeLine] || 'Récapitulatif des frais';
+}
+
 /* ---------- init ---------- */
 function resetAll() {
   // clear table
@@ -1055,6 +1068,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (expenseTypeValidateBtn) {
     expenseTypeValidateBtn.addEventListener('click', () => {
       state.expenseType = (expenseTypeSelect?.value || '').trim() || null;
+      updatePageTitleFromExpenseType();
       updateTotal();
       closeExpenseTypeModal();
     });

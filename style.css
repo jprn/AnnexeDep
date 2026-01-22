@@ -192,7 +192,8 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
 .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
  label.row{flex-direction:row}
 
- #renonceIndemnites{
+ #renonceIndemnites,
+ #demandeRemboursement{
   width:20px;
   height:20px;
   transform: scale(1.15);

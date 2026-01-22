@@ -199,7 +199,8 @@ input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3
   transform-origin: left center;
   accent-color: var(--danger);
  }
- #renonceIndemnites + span{
+ #renonceIndemnites + span,
+ #demandeRemboursement + span{
   color: var(--danger);
   font-weight:700;
  }
@@ -286,9 +287,15 @@ tfoot td{background: var(--tfoot-bg)}
   gap:14px;
   flex-wrap:wrap;
   margin-top:10px;
- }
+}
 
- .gen-bar-left{margin:0}
+.gen-bar-left{margin:0}
+
+ .gen-bar-left-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+ }
 
  .gen-bar-right{
   display:flex;

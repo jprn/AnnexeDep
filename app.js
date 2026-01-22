@@ -511,13 +511,22 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     const size = 11;
     const paddingX = 14;
     const paddingY = 10;
-    const tw = fontBold.widthOfTextAtSize(text, size);
-    const boxW = tw + paddingX * 2;
-    const boxH = size + paddingY * 2;
+    const lines = (text ?? '').toString().split(/\r?\n/);
+    const cleanLines = lines.length ? lines : [''];
+    const lineGap = 3;
+    const maxTw = Math.max(...cleanLines.map(l => fontBold.widthOfTextAtSize(l, size)));
+    const boxW = maxTw + paddingX * 2;
+    const contentH = (cleanLines.length * size) + ((cleanLines.length - 1) * lineGap);
+    const boxH = contentH + paddingY * 2;
     const x = (w - boxW) / 2;
     const y = yCenter - boxH / 2;
     page.drawRectangle({ x, y, width: boxW, height: boxH, borderColor: red, borderWidth: 2, color: rgb(1, 1, 1), opacity: 0.0 });
-    page.drawText(text, { x: x + paddingX, y: y + paddingY, size, font: fontBold, color: red });
+    let ty = y + boxH - paddingY - size;
+    for (const line of cleanLines) {
+      const tw = fontBold.widthOfTextAtSize(line, size);
+      page.drawText(line, { x: x + (boxW - tw) / 2, y: ty, size, font: fontBold, color: red });
+      ty -= (size + lineGap);
+    }
   };
 
   const missionStr = (() => {
@@ -815,7 +824,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   centerText('Je certifie ne pas me faire rembourser mes frais plusieurs fois.', y, 10.5, fontBold, red);
 
   if (renonceIndemnites) {
-    drawStamp('Je soussigné renoncer au remboursement de mes frais, j\'en fais don à la ligue Bourgogne Franche-Comté et demande un reçu fiscal', y - 22);
+    drawStamp('Je soussigné renoncer au remboursement de mes frais,\nj\'en fais don à la ligue Bourgogne Franche-Comté et demande un reçu fiscal', y - 22);
   }
 
   // --- Signature boxes ---

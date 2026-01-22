@@ -467,7 +467,7 @@ async function createRecapPdfDefault({ nom, lines, total }) {
   return pdfDoc;
 }
 
-async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, expenseType, lines, total, leagueRate }) {
+async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, demandeRemboursement, expenseType, lines, total, leagueRate }) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait
 
@@ -824,7 +824,9 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   centerText('Je certifie ne pas me faire rembourser mes frais plusieurs fois.', y, 10.5, fontBold, red);
 
   if (renonceIndemnites) {
-    drawStamp('Je soussigné renoncer au remboursement de mes frais,\nj\'en fais don à la ligue Bourgogne Franche-Comté et demande un reçu fiscal', y - 22);
+    drawStamp('Je soussigné renoncer au remboursement de mes frais,\nj\'en fais don à la ligue Bourgogne Franche-Comté et demande un reçu fiscal', y - 25);
+  } else if (demandeRemboursement) {
+    drawStamp('Je demande le remboursement de mes frais.', y - 25);
   }
 
   // --- Signature boxes ---
@@ -921,6 +923,7 @@ async function generateFinalPdf() {
   const lieu = (el('lieu')?.value || '').trim();
   const dateMission = (el('dateMission')?.value || '').trim();
   const renonceIndemnites = !!el('renonceIndemnites')?.checked;
+  const demandeRemboursement = !!el('demandeRemboursement')?.checked;
 
   const lines = getLinesData();
   const total = lines.reduce((s, l) => s + (l.amt || 0), 0);
@@ -930,7 +933,7 @@ async function generateFinalPdf() {
 
   // Build recap
   setStatus('Génération du récap PDF…');
-  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, expenseType, lines, total, leagueRate });
+  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, demandeRemboursement, expenseType, lines, total, leagueRate });
 
   // Create final doc + copy recap pages
   const finalDoc = await PDFDocument.create();
@@ -1125,6 +1128,31 @@ window.addEventListener('DOMContentLoaded', () => {
       alert('Erreur pendant la génération du PDF. Détail dans la console (F12).');
     });
   });
+
+  const renonceCb = el('renonceIndemnites');
+  const rembourseCb = el('demandeRemboursement');
+  const syncIndemnitesChoice = () => {
+    if (!renonceCb || !rembourseCb) return;
+    if (renonceCb.checked) {
+      rembourseCb.checked = false;
+      rembourseCb.disabled = true;
+      renonceCb.disabled = false;
+      return;
+    }
+    if (rembourseCb.checked) {
+      renonceCb.checked = false;
+      renonceCb.disabled = true;
+      rembourseCb.disabled = false;
+      return;
+    }
+    renonceCb.disabled = false;
+    rembourseCb.disabled = false;
+  };
+  if (renonceCb && rembourseCb) {
+    renonceCb.addEventListener('change', syncIndemnitesChoice);
+    rembourseCb.addEventListener('change', syncIndemnitesChoice);
+    syncIndemnitesChoice();
+  }
 
   const downloadBtn = el('downloadBtn');
   if (downloadBtn) {

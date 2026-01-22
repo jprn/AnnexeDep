@@ -824,7 +824,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   centerText('Je certifie ne pas me faire rembourser mes frais plusieurs fois.', y, 10.5, fontBold, red);
 
   if (renonceIndemnites) {
-    drawStamp('Je soussigné renoncer au remboursement de mes frais,\nj\'en fais don à la ligue Bourgogne Franche-Comté et demande un reçu fiscal', y - 25);
+    drawStamp('Je soussigné renoncer au remboursement de mes frais,\nj\'en fais don à la ligue Bourgogne Franche-Comté et demande un reçu fiscal', y - 28);
   } else if (demandeRemboursement) {
     drawStamp('Je demande le remboursement de mes frais.', y - 25);
   }

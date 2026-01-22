@@ -11,7 +11,7 @@ const state = {
   expenseType: null,
 };
 
-const DEPLACEMENT_TARIF_EUR_KM = 0.3;
+const DEPLACEMENT_TARIF_EUR_KM = 0.35;
 
 const generated = {
   bytes: null,

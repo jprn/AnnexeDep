@@ -803,15 +803,35 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     const montant = l ? `${fmtEUR(l.amt || 0)}€` : '';
     const cells = [cat, desc, tarif, kms, montant];
 
+    const fontSize = 10;
+    const lineGap = 2;
+
     for (let j=0;j<cols.length;j++) {
       const c = cols[j];
       p.drawLine({ start: { x: cx2, y: rowTopY }, end: { x: cx2, y: rowTopY - rowH }, thickness: 1, color: gray });
       const txt = safe(cells[j]);
-      const t = c.key === 'desc'
-        ? fitTextEllipsis(txt, c.w - 12, 10, font)
-        : wrapText(txt, c.w - 12, 10, font)[0];
-      const tw = font.widthOfTextAtSize(t, 10);
-      p.drawText(t, { x: cx2 + (c.w - tw) / 2, y: rowTopY - 14, size: 10, font, color: black });
+
+      let lines = [];
+      if (c.key === 'desc') {
+        lines = wrapText(txt, c.w - 12, fontSize, font).slice(0, 2);
+        if (lines.length === 2) {
+          const all = wrapText(txt, c.w - 12, fontSize, font);
+          if (all.length > 2) {
+            lines[1] = fitTextEllipsis(lines[1], c.w - 12, fontSize, font);
+          }
+        }
+      } else {
+        lines = [fitTextEllipsis(txt, c.w - 12, fontSize, font)];
+      }
+
+      const textH = (lines.length * fontSize) + ((lines.length - 1) * lineGap);
+      let ly = rowTopY - ((rowH - textH) / 2) - fontSize;
+      for (const line of lines) {
+        const tw = font.widthOfTextAtSize(line, fontSize);
+        p.drawText(line, { x: cx2 + (c.w - tw) / 2, y: ly, size: fontSize, font, color: black });
+        ly -= (fontSize + lineGap);
+      }
+
       cx2 += c.w;
     }
     p.drawLine({ start: { x: tableX + tableW, y: rowTopY }, end: { x: tableX + tableW, y: rowTopY - rowH }, thickness: 1, color: gray });
@@ -823,7 +843,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   const tableX = 60;
   const tableW = w - tableX*2;
   const headerH = 22;
-  const rowH = 20;
+  const rowH = 28;
   const cols = [
     { key: 'cat', label: 'Catégorie', w: tableW * 0.18 },
     { key: 'desc', label: 'Description', w: tableW * 0.40 },

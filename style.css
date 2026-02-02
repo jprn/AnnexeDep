@@ -352,6 +352,8 @@ tfoot td{background: var(--tfoot-bg)}
 
   #fraisTable tr.is-nondep td.cell-km{display:none}
 
+  #fraisTable tr td.cell-drag{display:none}
+
   .total-mobile{
     display:flex;
     align-items:center;
@@ -372,24 +374,29 @@ tfoot td{background: var(--tfoot-bg)}
  #fraisTable td.num,
  #fraisTable th.num{text-align:center}
  #fraisTable th:nth-child(1),
- #fraisTable td:nth-child(1){width:200px}
- #fraisTable th:nth-child(3),
- #fraisTable td:nth-child(3){width:90px}
+ #fraisTable td:nth-child(1){width:44px}
+ #fraisTable th:nth-child(2),
+ #fraisTable td:nth-child(2){width:200px}
  #fraisTable th:nth-child(4),
- #fraisTable td:nth-child(4){width:120px}
+ #fraisTable td:nth-child(4){width:90px}
  #fraisTable th:nth-child(5),
- #fraisTable td:nth-child(5){width:220px}
+ #fraisTable td:nth-child(5){width:120px}
  #fraisTable th:nth-child(6),
- #fraisTable td:nth-child(6){width:92px}
+ #fraisTable td:nth-child(6){width:220px}
+ #fraisTable th:nth-child(7),
+ #fraisTable td:nth-child(7){width:92px}
 
- #fraisTable th:nth-child(6),
- #fraisTable td:nth-child(6){padding-right:16px}
+ #fraisTable th:nth-child(7),
+ #fraisTable td:nth-child(7){padding-right:16px}
 
  #fraisTable input,
  #fraisTable select{width:100%; text-align:center}
  #fraisTable input[type="file"]{width:100%}
  #fraisTable input.km,
  #fraisTable input.amt{padding-left:8px;padding-right:8px}
+
+ .dragHandle{cursor:grab; user-select:none}
+ tr.is-dragging{opacity:.6}
 
 .list{margin-top:10px;display:flex;flex-direction:column;gap:10px}
 .item{

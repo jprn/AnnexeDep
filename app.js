@@ -28,6 +28,46 @@ const fmtEUR = (n) => {
 
 const el = (id) => document.getElementById(id);
 
+function reorderArray(arr, fromIndex, toIndex) {
+  if (!Array.isArray(arr)) return arr;
+  if (fromIndex === toIndex) return arr;
+  if (fromIndex < 0 || fromIndex >= arr.length) return arr;
+  if (toIndex < 0 || toIndex >= arr.length) return arr;
+  const [item] = arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, item);
+  return arr;
+}
+
+function getConnectedLineRowsInDomOrder() {
+  const tbody = el('fraisBody');
+  if (!tbody) return [];
+  const trs = Array.from(tbody.querySelectorAll('tr'));
+  const byId = new Map(
+    state.lineRows
+      .filter(r => r && r.tr && r.tr.isConnected)
+      .map(r => [r.rowId, r])
+  );
+  return trs.map(tr => byId.get(tr.dataset.rowId)).filter(Boolean);
+}
+
+function getLineRowIndexById(rowId) {
+  return state.lineRows.findIndex(r => r && r.rowId === rowId);
+}
+
+function rebuildLineRowsFromDomOrder() {
+  const ordered = getConnectedLineRowsInDomOrder();
+  state.lineRows = ordered;
+}
+
+function updateLineBadges() {
+  rebuildLineRowsFromDomOrder();
+  state.lineRows.forEach((r, idx) => {
+    if (!r?.tr) return;
+    r.tr.dataset.rowOrder = String(idx);
+  });
+  renderJustifsList();
+}
+
 function setStatus(msg) {
   el('status').textContent = msg || '';
 }
@@ -83,9 +123,14 @@ function addLineRow(prefill = {}) {
   const tbody = el('fraisBody');
   const tr = document.createElement('tr');
 
-  const lineIndex = state.lineRows.length;
+  const rowId = mkId();
+  tr.dataset.rowId = rowId;
+  tr.draggable = false;
 
   tr.innerHTML = `
+    <td class="cell-drag">
+      <button type="button" class="btn btn-ghost dragHandle" aria-label="Déplacer la ligne" title="Déplacer la ligne">↕</button>
+    </td>
     <td>
       <select class="cat">
         <option value="Déplacement">Déplacement</option>
@@ -110,12 +155,13 @@ function addLineRow(prefill = {}) {
   `;
 
   const tds = tr.querySelectorAll('td');
-  if (tds[0]) { tds[0].dataset.label = 'Catégorie'; tds[0].classList.add('cell-cat'); }
-  if (tds[1]) { tds[1].dataset.label = 'Description'; tds[1].classList.add('cell-desc'); }
-  if (tds[2]) { tds[2].dataset.label = 'Km'; tds[2].classList.add('cell-km'); }
-  if (tds[3]) { tds[3].dataset.label = 'Montant (€)'; tds[3].classList.add('cell-amt'); }
-  if (tds[4]) { tds[4].dataset.label = 'Justificatif'; tds[4].classList.add('cell-justif'); }
-  if (tds[5]) { tds[5].dataset.label = 'Actions'; tds[5].classList.add('cell-actions'); }
+  if (tds[0]) { tds[0].dataset.label = ''; tds[0].classList.add('cell-drag'); }
+  if (tds[1]) { tds[1].dataset.label = 'Catégorie'; tds[1].classList.add('cell-cat'); }
+  if (tds[2]) { tds[2].dataset.label = 'Description'; tds[2].classList.add('cell-desc'); }
+  if (tds[3]) { tds[3].dataset.label = 'Km'; tds[3].classList.add('cell-km'); }
+  if (tds[4]) { tds[4].dataset.label = 'Montant (€)'; tds[4].classList.add('cell-amt'); }
+  if (tds[5]) { tds[5].dataset.label = 'Justificatif'; tds[5].classList.add('cell-justif'); }
+  if (tds[6]) { tds[6].dataset.label = 'Actions'; tds[6].classList.add('cell-actions'); }
 
   // set category
   tr.querySelector('.cat').value = prefill.cat || 'Déplacement';
@@ -126,6 +172,7 @@ function addLineRow(prefill = {}) {
   const catEl = tr.querySelector('.cat');
   const kmTd = kmEl?.closest('td');
   const warnEl = tr.querySelector('.lineWarn');
+  const handleEl = tr.querySelector('.dragHandle');
 
   const clearWarn = () => {
     if (warnEl) warnEl.textContent = '';
@@ -187,14 +234,12 @@ function addLineRow(prefill = {}) {
   catEl.addEventListener('change', applyDeplacementRules);
   tr.querySelector('.delRow').addEventListener('click', () => {
     // remove any linked justif for that line
-    const row = state.lineRows[lineIndex];
-    if (row?.linkedJustifId) {
-      state.justifs = state.justifs.filter(j => j.id !== row.linkedJustifId);
-    }
+    const linked = state.justifs.find(j => j.source === 'line' && j.rowId === rowId);
+    if (linked) state.justifs = state.justifs.filter(j => j.id !== linked.id);
     tr.remove();
-    state.lineRows[lineIndex] = null;
+    state.lineRows = state.lineRows.filter(r => r && r.rowId !== rowId);
     updateTotal();
-    renderJustifsList();
+    updateLineBadges();
   });
 
   tr.querySelector('.lineJustif').addEventListener('change', (e) => {
@@ -202,11 +247,7 @@ function addLineRow(prefill = {}) {
     const nameEl = tr.querySelector('.lineJustifName');
 
     // Remove previous linked justif if any
-    const row = state.lineRows[lineIndex];
-    if (row?.linkedJustifId) {
-      state.justifs = state.justifs.filter(j => j.id !== row.linkedJustifId);
-      row.linkedJustifId = null;
-    }
+    state.justifs = state.justifs.filter(j => !(j.source === 'line' && j.rowId === rowId));
 
     if (!file) {
       nameEl.textContent = '';
@@ -222,35 +263,78 @@ function addLineRow(prefill = {}) {
       type: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : ''),
       size: file.size,
       source: 'line',
-      lineIndex
+      rowId
     };
     state.justifs.push(j);
-    row.linkedJustifId = id;
     nameEl.textContent = file.name;
     renderJustifsList();
   });
 
+  if (handleEl) {
+    handleEl.addEventListener('pointerdown', () => {
+      tr.draggable = true;
+    });
+  }
+
+  tr.addEventListener('dragstart', (e) => {
+    const dt = e.dataTransfer;
+    if (!dt) return;
+    dt.effectAllowed = 'move';
+    dt.setData('text/plain', rowId);
+    tr.classList.add('is-dragging');
+  });
+
+  tr.addEventListener('dragend', () => {
+    tr.draggable = false;
+    tr.classList.remove('is-dragging');
+  });
+
+  tr.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    if (dt) dt.dropEffect = 'move';
+  });
+
+  tr.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    const sourceId = dt?.getData('text/plain');
+    if (!sourceId || sourceId === rowId) return;
+
+    const sourceTr = tbody.querySelector(`tr[data-row-id="${CSS.escape(sourceId)}"]`);
+    if (!sourceTr || !sourceTr.isConnected) return;
+
+    const siblings = Array.from(tbody.querySelectorAll('tr'));
+    const fromIndex = siblings.indexOf(sourceTr);
+    const toIndex = siblings.indexOf(tr);
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+
+    if (fromIndex < toIndex) {
+      tbody.insertBefore(sourceTr, tr.nextSibling);
+    } else {
+      tbody.insertBefore(sourceTr, tr);
+    }
+
+    updateLineBadges();
+    updateTotal();
+  });
+
   tbody.appendChild(tr);
 
-  state.lineRows.push({
-    tr,
-    linkedJustifId: null
-  });
+  state.lineRows.push({ tr, rowId });
+  updateLineBadges();
 
   applyDeplacementRules();
 }
 
 function getLinesData() {
-  const rows = [];
-  state.lineRows.forEach((r) => {
-    if (!r || !r.tr || !r.tr.isConnected) return;
+  return getConnectedLineRowsInDomOrder().map((r) => {
     const cat = r.tr.querySelector('.cat').value || '';
     const desc = r.tr.querySelector('.desc').value || '';
     const km = parseFloat(r.tr.querySelector('.km')?.value || '0') || 0;
     const amt = parseFloat(r.tr.querySelector('.amt').value || '0') || 0;
-    rows.push({ cat, desc, km, amt });
+    return { cat, desc, km, amt };
   });
-  return rows;
 }
 
 function updateTotal() {
@@ -297,10 +381,10 @@ function renderJustifsList() {
   if (!list) return;
   list.innerHTML = '';
 
-  // Keep stable order: line-linked first by line index, then list-added
+  // Keep stable order: line-linked first by DOM order, then list-added
   const linked = state.justifs
     .filter(j => j.source === 'line')
-    .sort((a,b) => (a.lineIndex ?? 0) - (b.lineIndex ?? 0));
+    .sort((a,b) => getLineRowIndexById(a.rowId) - getLineRowIndexById(b.rowId));
   const added = state.justifs.filter(j => j.source === 'list');
 
   const all = [...linked, ...added];
@@ -318,7 +402,7 @@ function renderJustifsList() {
     item.className = 'item';
 
     const badge = j.source === 'line'
-      ? `Ligne #${(j.lineIndex ?? 0) + 1}`
+      ? `Ligne #${Math.max(1, getLineRowIndexById(j.rowId) + 1)}`
       : 'Ajouté';
     const mime = j.type || 'fichier';
 
@@ -336,11 +420,10 @@ function renderJustifsList() {
     item.querySelector('.remove').addEventListener('click', () => {
       // if it's linked to a row, clear row pointer + UI label
       if (j.source === 'line') {
-        const row = state.lineRows[j.lineIndex];
-        if (row) {
-          row.linkedJustifId = null;
-          const nameEl = row.tr?.querySelector('.lineJustifName');
-          const inputEl = row.tr?.querySelector('.lineJustif');
+        const row = state.lineRows.find(r => r && r.rowId === j.rowId);
+        if (row?.tr) {
+          const nameEl = row.tr.querySelector('.lineJustifName');
+          const inputEl = row.tr.querySelector('.lineJustif');
           if (nameEl) nameEl.textContent = '';
           if (inputEl) inputEl.value = '';
         }
@@ -691,17 +774,6 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
 
   // Treasurer block (left)
   page.drawText('Trésorière : Clotilde PERRIN', { x: 55, y: h - 160, size: 9, font: fontBold, color: gray });
-  const treLines = [
-    '24 rue des Justices',
-    'Bât 35 Appart 181',
-    '25000 Besançon',
-    'Tel : 06 80 54 53 40'
-  ];
-  let ty = h - 172;
-  for (const t of treLines) {
-    page.drawText(t, { x: 55, y: ty, size: 9, font, color: gray });
-    ty -= 12;
-  }
 
   // --- Titles (moved up to free space for the table) ---
   const typeLine = (expenseType || '').trim();
@@ -729,12 +801,12 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     mainTitle: 'État de remboursement des frais de déplacement pour mission'
   };
 
-  centerText(resolved.annexeTitle, h - 225, 14, fontBold, black);
-  centerText(resolved.mainTitle, h - 250, 14, fontBold, black);
+  centerText(resolved.annexeTitle, h - 177, 14, fontBold, black);
+  centerText(resolved.mainTitle, h - 202, 14, fontBold, black);
 
   // --- Info block (moved up) ---
   const infoX = 70;
-  let y = h - 285;
+  let y = h - 237;
   const labelSize = 10.5;
   const valueSize = 10.5;
   const valueX = 260;

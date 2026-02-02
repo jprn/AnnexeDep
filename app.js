@@ -809,11 +809,11 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   const headerH = 22;
   const rowH = 20;
   const cols = [
-    { key: 'cat', label: 'Catégorie', w: tableW * 0.20 },
-    { key: 'desc', label: 'Description', w: tableW * 0.32 },
-    { key: 'tarif', label: 'Tarif', w: tableW * 0.16 },
-    { key: 'km', label: 'Kilomètres', w: tableW * 0.16 },
-    { key: 'amt', label: 'MONTANT', w: tableW * 0.16, align: 'right' }
+    { key: 'cat', label: 'Catégorie', w: tableW * 0.18 },
+    { key: 'desc', label: 'Description', w: tableW * 0.40 },
+    { key: 'tarif', label: 'Tarif', w: tableW * 0.14 },
+    { key: 'km', label: 'Kilomètres', w: tableW * 0.14 },
+    { key: 'amt', label: 'MONTANT', w: tableW * 0.14, align: 'right' }
   ];
   y = drawTableHeader(page, y);
 

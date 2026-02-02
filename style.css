@@ -410,6 +410,8 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0}
  .footer-link{color: var(--text); text-decoration: underline; text-underline-offset: 3px}
  .footer-link:hover{opacity:.9}
 
+ .lineWarn{color:var(--danger)}
+
  .legal{margin-top:14px}
  .legal h3{margin:14px 0 6px;font-size:14px}
 

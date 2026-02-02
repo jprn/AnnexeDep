@@ -13,6 +13,8 @@ const state = {
 
 const DEPLACEMENT_TARIF_EUR_KM = 0.35;
 
+const HEBERGEMENT_PLAFOND_EUR = 60;
+
 const generated = {
   bytes: null,
   filename: null,
@@ -96,7 +98,10 @@ function addLineRow(prefill = {}) {
     </td>
     <td><input type="text" class="desc" placeholder="Ex: Rouen → Le Havre" value="${prefill.desc || ''}"></td>
     <td class="num"><input type="number" step="1" min="0" class="km" placeholder="0" value="${prefill.km || ''}"></td>
-    <td class="num"><input type="number" step="0.01" min="0" class="amt" placeholder="0.00" value="${prefill.amt || ''}"></td>
+    <td class="num">
+      <input type="number" step="0.01" min="0" class="amt" placeholder="0.00" value="${prefill.amt || ''}">
+      <div class="small muted lineWarn" aria-live="polite"></div>
+    </td>
     <td>
       <input type="file" class="lineJustif" accept=".pdf,image/*" />
       <div class="small muted lineJustifName"></div>
@@ -120,6 +125,34 @@ function addLineRow(prefill = {}) {
   const amtEl = tr.querySelector('.amt');
   const catEl = tr.querySelector('.cat');
   const kmTd = kmEl?.closest('td');
+  const warnEl = tr.querySelector('.lineWarn');
+
+  const clearWarn = () => {
+    if (warnEl) warnEl.textContent = '';
+  };
+
+  const applyHebergementPlafond = () => {
+    const cat = (catEl.value || '').trim();
+    if (cat !== 'Hébergement') {
+      clearWarn();
+      return;
+    }
+
+    const raw = parseFloat(amtEl.value || '0');
+    if (!Number.isFinite(raw)) {
+      clearWarn();
+      return;
+    }
+
+    if (raw > HEBERGEMENT_PLAFOND_EUR) {
+      amtEl.value = HEBERGEMENT_PLAFOND_EUR.toFixed(2);
+      if (warnEl) {
+        warnEl.textContent = `Plafond hébergement : remboursement max ${fmtEUR(HEBERGEMENT_PLAFOND_EUR)} €.`;
+      }
+    } else {
+      clearWarn();
+    }
+  };
 
   const applyDeplacementRules = () => {
     const cat = (catEl.value || '').trim();
@@ -142,10 +175,14 @@ function addLineRow(prefill = {}) {
       kmEl.style.display = 'none';
       if (kmTd) kmTd.style.display = '';
     }
+    applyHebergementPlafond();
     updateTotal();
   };
 
-  amtEl.addEventListener('input', updateTotal);
+  amtEl.addEventListener('input', () => {
+    applyHebergementPlafond();
+    updateTotal();
+  });
   kmEl.addEventListener('input', applyDeplacementRules);
   catEl.addEventListener('change', applyDeplacementRules);
   tr.querySelector('.delRow').addEventListener('click', () => {

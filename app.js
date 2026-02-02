@@ -1178,6 +1178,18 @@ function closeExpenseTypeModal() {
   modal.hidden = true;
 }
 
+function openHelpModal() {
+  const modal = el('helpModal');
+  if (!modal) return;
+  modal.hidden = false;
+}
+
+function closeHelpModal() {
+  const modal = el('helpModal');
+  if (!modal) return;
+  modal.hidden = true;
+}
+
 function updatePageTitleFromExpenseType() {
   const title = el('pageTitle');
   if (!title) return;
@@ -1236,6 +1248,29 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !expenseTypeModal.hidden) closeExpenseTypeModal();
+    });
+  }
+
+  const helpBtn = el('helpBtn');
+  const helpModal = el('helpModal');
+  const helpCloseBtn = el('helpCloseBtn');
+  const helpOkBtn = el('helpOkBtn');
+
+  if (helpBtn) {
+    helpBtn.addEventListener('click', openHelpModal);
+  }
+  if (helpCloseBtn) {
+    helpCloseBtn.addEventListener('click', closeHelpModal);
+  }
+  if (helpOkBtn) {
+    helpOkBtn.addEventListener('click', closeHelpModal);
+  }
+  if (helpModal) {
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) closeHelpModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !helpModal.hidden) closeHelpModal();
     });
   }
 

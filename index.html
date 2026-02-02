@@ -18,16 +18,19 @@
         </a>
         <h1 id="pageTitle">Note de frais</h1>
       </div>
-      <button id="themeToggle" class="btn theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Basculer le thème">
-        <span class="theme-toggle-label">Thème</span>
-        <span class="theme-toggle-switch" aria-hidden="true">
-          <span class="theme-toggle-icons" aria-hidden="true">
-            <span class="theme-toggle-icon theme-toggle-icon-sun">☀️</span>
-            <span class="theme-toggle-icon theme-toggle-icon-moon">🌙</span>
+      <div class="header-actions">
+        <button id="themeToggle" class="btn theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Basculer le thème">
+          <span class="theme-toggle-label">Thème</span>
+          <span class="theme-toggle-switch" aria-hidden="true">
+            <span class="theme-toggle-icons" aria-hidden="true">
+              <span class="theme-toggle-icon theme-toggle-icon-sun">☀️</span>
+              <span class="theme-toggle-icon theme-toggle-icon-moon">🌙</span>
+            </span>
+            <span class="theme-toggle-thumb"></span>
           </span>
-          <span class="theme-toggle-thumb"></span>
-        </span>
-      </button>
+        </button>
+        <button id="helpBtn" class="btn help-btn" type="button" aria-haspopup="dialog" aria-controls="helpModal" aria-label="Aide">?</button>
+      </div>
     </div>
     <p class="muted">Remplis le récap, ajoute tes justificatifs (PDF/JPG/PNG), puis génère un PDF unique. Transmettre le document à la trésorière</p>
   </header>
@@ -144,6 +147,27 @@
   <footer class="container footer">
     <span class="muted small">Développé par Jerome PERRIN — © Tous droits réservés </span>
   </footer>
+
+  <div id="helpModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h2 id="helpTitle" class="modal-title">Aide</h2>
+        <button id="helpCloseBtn" class="btn btn-ghost" type="button" aria-label="Fermer">Fermer</button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>1.</strong> Renseigne tes informations (nom, adresse, motif, lieu, date).</p>
+        <p><strong>2.</strong> Ajoute tes lignes de frais (déplacement, repas, etc.).</p>
+        <p><strong>3.</strong> Ajoute tes justificatifs (PDF/JPG/PNG), puis clique sur <strong>Générer</strong>.</p>
+        <p><strong>4.</strong> Télécharge le PDF final et transmets-le à la trésorière par mail.</p>
+        <p class="muted small">Astuce : tu as la possibilité de déplacer les lignes pour réorganiser l'ordre.</p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="helpOkBtn" class="btn btn-primary" type="button">OK</button>
+      </div>
+    </div>
+  </div>
 
   <div id="expenseTypeModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="expenseTypeTitle" hidden>
     <div class="modal" role="document">

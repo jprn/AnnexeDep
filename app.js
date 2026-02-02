@@ -539,6 +539,20 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     return out.length ? out : [''];
   };
 
+  const fitTextEllipsis = (text, maxWidth, size, usedFont) => {
+    const t = safe(text);
+    if (!t) return '';
+    if (usedFont.widthOfTextAtSize(t, size) <= maxWidth) return t;
+    const ell = '…';
+    let cur = t;
+    while (cur.length > 0) {
+      cur = cur.slice(0, -1);
+      const cand = cur.trimEnd() + ell;
+      if (usedFont.widthOfTextAtSize(cand, size) <= maxWidth) return cand;
+    }
+    return ell;
+  };
+
   const centerText = (text, y, size, usedFont, color = black) => {
     const tw = usedFont.widthOfTextAtSize(text, size);
     page.drawText(text, { x: (w - tw) / 2, y, size, font: usedFont, color });
@@ -793,7 +807,9 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
       const c = cols[j];
       p.drawLine({ start: { x: cx2, y: rowTopY }, end: { x: cx2, y: rowTopY - rowH }, thickness: 1, color: gray });
       const txt = safe(cells[j]);
-      const t = wrapText(txt, c.w - 12, 10, font)[0];
+      const t = c.key === 'desc'
+        ? fitTextEllipsis(txt, c.w - 12, 10, font)
+        : wrapText(txt, c.w - 12, 10, font)[0];
       const tw = font.widthOfTextAtSize(t, 10);
       p.drawText(t, { x: cx2 + (c.w - tw) / 2, y: rowTopY - 14, size: 10, font, color: black });
       cx2 += c.w;
@@ -804,7 +820,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
 
   // --- Table ---
   y -= 12;
-  const tableX = 85;
+  const tableX = 60;
   const tableW = w - tableX*2;
   const headerH = 22;
   const rowH = 20;

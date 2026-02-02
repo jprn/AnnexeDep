@@ -711,11 +711,11 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     'Utiliser un seul état par déplacement ou mission à envoyer par courrier au trésorier (email :',
     'compta.bfco@gmail.com) dans le mois qui suit la mission (accompagné d\'un RIB).',
     'Joindre les justificatifs (invitation - péage - etc...).',
-    '- L\'indemnité est fixée chaque année par le Comité Directeur (0,30€/km). Elle peut être modifiée par anticipation',
+    '- L\'indemnité est fixée chaque année par le Comité Directeur (0,35€/km). Elle peut être modifiée par anticipation',
     'lors d\'un Comité Directeur si le besoin s\'en fait sentir.',
     '- Frais de péage sur justificatif.',
     '- Frais de restauration : remboursement sur justificatif plafonné à 18,00 € par repas.',
-    '- Frais d\'hébergement : remboursement sur facture plafonné à 40,00 € par nuitée et 8,00€ pour le petit déjeuner.'
+    '- Frais d\'hébergement : remboursement sur facture plafonné à 60,00 € par nuitée et 8,00€ pour le petit déjeuner.'
   ];
   const ruleSize = 8.5;
   for (const r of rules) {
@@ -747,7 +747,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     const cat = l ? safe(l.cat) : '';
     const desc = l ? safe(l.desc) : '';
     const isDep = l && (safe(l.cat) === 'Déplacement');
-    const tarif = isDep ? '0,30€' : '';
+    const tarif = isDep ? '0,35€' : '';
     const kms = isDep ? String(Math.round(l.km || 0)) : '';
     const montant = l ? `${fmtEUR(l.amt || 0)}€` : '';
     const cells = [cat, desc, tarif, kms, montant];

@@ -89,7 +89,7 @@ function addLineRow(prefill = {}) {
         <option value="Déplacement">Déplacement</option>
         <option value="Péage">Péage</option>
         <option value="Repas">Repas</option>
-        <option value="Hôtel">Hôtel</option>
+        <option value="Hébergement">Hébergement</option>
         <option value="Parking">Parking</option>
         <option value="Divers">Divers</option>
       </select>

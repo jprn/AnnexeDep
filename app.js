@@ -425,7 +425,7 @@ async function createRecapPdfDefault({ nom, lines, total }) {
 
     cx = tableX + 6;
     const isDep = ((line.cat || '').trim() === 'Déplacement');
-    const tarif = isDep ? '0,30' : '';
+    const tarif = isDep ? '0,35' : '';
     const kms = isDep ? String(Math.round(line.km || 0)) : '';
     const cells = [
       line.cat || '',

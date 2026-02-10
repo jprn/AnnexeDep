@@ -1246,6 +1246,28 @@ window.addEventListener('DOMContentLoaded', () => {
   applyTheme(initialTheme);
   updateThemeToggleLabel(initialTheme);
 
+  const commentaireEl = el('commentaire');
+  if (commentaireEl) {
+    const maxLines = 2;
+    const clampLines = () => {
+      const raw = (commentaireEl.value || '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const parts = raw.split('\n');
+      if (parts.length <= maxLines) return;
+      commentaireEl.value = parts.slice(0, maxLines).join('\n');
+    };
+
+    commentaireEl.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const currentLines = (commentaireEl.value || '').toString().split(/\r?\n/).length;
+      if (currentLines >= maxLines) {
+        e.preventDefault();
+      }
+    });
+
+    commentaireEl.addEventListener('input', clampLines);
+    commentaireEl.addEventListener('paste', () => setTimeout(clampLines, 0));
+  }
+
   openExpenseTypeModal();
 
   const expenseTypeModal = el('expenseTypeModal');

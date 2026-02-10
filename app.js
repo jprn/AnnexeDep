@@ -1086,7 +1086,9 @@ async function generateFinalPdf() {
   const demandeRemboursement = !!el('demandeRemboursement')?.checked;
   const commentaire = (() => {
     const raw = (el('commentaire')?.value || '').toString();
-    const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean).slice(0, 2);
+    const maxChars = 300;
+    const clipped = raw.slice(0, maxChars);
+    const lines = clipped.split(/\r?\n/).map(s => s.trim()).filter(Boolean).slice(0, 2);
     return lines.join('\n').trim();
   })();
 
@@ -1248,12 +1250,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const commentaireEl = el('commentaire');
   if (commentaireEl) {
+    const maxChars = 300;
     const maxLines = 2;
     const clampLines = () => {
-      const raw = (commentaireEl.value || '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      let raw = (commentaireEl.value || '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      if (raw.length > maxChars) raw = raw.slice(0, maxChars);
       const parts = raw.split('\n');
       if (parts.length <= maxLines) return;
       commentaireEl.value = parts.slice(0, maxLines).join('\n');
+    };
+
+    const clampChars = () => {
+      const raw = (commentaireEl.value || '').toString();
+      if (raw.length <= maxChars) return;
+      commentaireEl.value = raw.slice(0, maxChars);
     };
 
     commentaireEl.addEventListener('keydown', (e) => {
@@ -1264,8 +1274,14 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    commentaireEl.addEventListener('input', clampLines);
-    commentaireEl.addEventListener('paste', () => setTimeout(clampLines, 0));
+    commentaireEl.addEventListener('input', () => {
+      clampChars();
+      clampLines();
+    });
+    commentaireEl.addEventListener('paste', () => setTimeout(() => {
+      clampChars();
+      clampLines();
+    }, 0));
   }
 
   openExpenseTypeModal();

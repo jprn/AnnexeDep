@@ -587,7 +587,7 @@ async function createRecapPdfDefault({ nom, lines, total }) {
   return pdfDoc;
 }
 
-async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, demandeRemboursement, expenseType, lines, total, leagueRate }) {
+async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, demandeRemboursement, expenseType, commentaire, lines, total, leagueRate }) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait
 
@@ -936,6 +936,21 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     y = drawTableRow(page, y, l);
   }
 
+  const comment = safe(commentaire);
+  if (comment) {
+    y -= 14;
+    const labelSize = 10;
+    const valueSize = 9.5;
+    page.drawText('Commentaire :', { x: tableX, y: y - 10, size: labelSize, font: fontBold, color: black });
+    const linesC = wrapText(comment, tableW, valueSize, font).slice(0, 2);
+    let cy = y - 24;
+    for (const line of linesC) {
+      page.drawText(line, { x: tableX, y: cy, size: valueSize, font, color: black });
+      cy -= (valueSize + 3);
+    }
+    y = cy + 6;
+  }
+
   // --- Total box ---
   y -= 18;
   const totalBoxW = 320;
@@ -1069,6 +1084,11 @@ async function generateFinalPdf() {
   const dateMission = (el('dateMission')?.value || '').trim();
   const renonceIndemnites = !!el('renonceIndemnites')?.checked;
   const demandeRemboursement = !!el('demandeRemboursement')?.checked;
+  const commentaire = (() => {
+    const raw = (el('commentaire')?.value || '').toString();
+    const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean).slice(0, 2);
+    return lines.join('\n').trim();
+  })();
 
   const lines = getLinesData();
   const total = lines.reduce((s, l) => s + (l.amt || 0), 0);
@@ -1078,7 +1098,7 @@ async function generateFinalPdf() {
 
   // Build recap
   setStatus('Génération du récap PDF…');
-  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, demandeRemboursement, expenseType, lines, total, leagueRate });
+  const recapDoc = await createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceIndemnites, demandeRemboursement, expenseType, commentaire, lines, total, leagueRate });
 
   // Create final doc + copy recap pages
   const finalDoc = await PDFDocument.create();
@@ -1211,6 +1231,8 @@ function resetAll() {
   // clear justifs
   state.justifs = [];
   state.expenseType = null;
+  const commentaire = el('commentaire');
+  if (commentaire) commentaire.value = '';
   const justifsInput = el('justifsInput');
   if (justifsInput) justifsInput.value = '';
   clearGeneratedPreview();

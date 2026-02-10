@@ -165,7 +165,7 @@ html:not([data-theme="light"]) #themeToggle[aria-checked="true"] .theme-toggle-t
 @media (max-width: 520px){ .form-grid{grid-template-columns:1fr} }
 
 label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
-input, select{
+input, select, textarea{
   background: var(--field-bg);
   border:1px solid var(--line);
   color:var(--text);
@@ -176,7 +176,12 @@ input, select{
   font-size:16px;
 }
 select{height: var(--control-h)}
-input:focus, select:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}
+input:focus, select:focus, textarea:focus{border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-shadow);}
+
+.comment-textarea{
+  resize: none;
+  min-height: calc(var(--control-h) * 2);
+}
 
  #dateMission{
   width: 220px;

@@ -1115,7 +1115,7 @@ async function generateFinalPdf() {
   const demandeRemboursement = !!el('demandeRemboursement')?.checked;
   const commentaire = (() => {
     const raw = (el('commentaire')?.value || '').toString();
-    const maxChars = 300;
+    const maxChars = 200;
     const clipped = raw.slice(0, maxChars);
     const lines = clipped.split(/\r?\n/).map(s => s.trim()).filter(Boolean).slice(0, 2);
     return lines.join('\n').trim();
@@ -1279,7 +1279,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const commentaireEl = el('commentaire');
   if (commentaireEl) {
-    const maxChars = 300;
+    const maxChars = 200;
     const maxLines = 2;
     const clampLines = () => {
       let raw = (commentaireEl.value || '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');

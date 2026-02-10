@@ -609,13 +609,42 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     const words = t.split(/\s+/).filter(Boolean);
     const out = [];
     let cur = '';
+
+    const splitLongWord = (word) => {
+      const parts = [];
+      let remaining = word;
+      while (remaining.length > 0) {
+        if (usedFont.widthOfTextAtSize(remaining, size) <= maxWidth) {
+          parts.push(remaining);
+          break;
+        }
+
+        let lo = 1;
+        let hi = remaining.length;
+        while (lo < hi) {
+          const mid = Math.ceil((lo + hi) / 2);
+          const cand = remaining.slice(0, mid);
+          if (usedFont.widthOfTextAtSize(cand, size) <= maxWidth) lo = mid;
+          else hi = mid - 1;
+        }
+
+        const take = Math.max(1, lo);
+        parts.push(remaining.slice(0, take));
+        remaining = remaining.slice(take);
+      }
+      return parts;
+    };
+
     for (const word of words) {
-      const cand = cur ? `${cur} ${word}` : word;
-      if (usedFont.widthOfTextAtSize(cand, size) <= maxWidth) {
-        cur = cand;
-      } else {
-        if (cur) out.push(cur);
-        cur = word;
+      const chunks = (usedFont.widthOfTextAtSize(word, size) <= maxWidth) ? [word] : splitLongWord(word);
+      for (const chunk of chunks) {
+        const cand = cur ? `${cur} ${chunk}` : chunk;
+        if (usedFont.widthOfTextAtSize(cand, size) <= maxWidth) {
+          cur = cand;
+        } else {
+          if (cur) out.push(cur);
+          cur = chunk;
+        }
       }
     }
     if (cur) out.push(cur);

@@ -180,7 +180,7 @@ input:focus, select:focus, textarea:focus{border-color: var(--focus-border); box
 
 .comment-textarea{
   resize: none;
-  min-height: calc(var(--control-h) * 2);
+  min-height: calc(var(--control-h) * 1.5);
 }
 
  #dateMission{

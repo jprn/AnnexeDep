@@ -1279,7 +1279,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const commentaireEl = el('commentaire');
   if (commentaireEl) {
-    const maxChars = 200;
+    const maxChars = 250;
     const maxLines = 2;
     const clampLines = () => {
       let raw = (commentaireEl.value || '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');

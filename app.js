@@ -939,6 +939,24 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     return rowTopY - rowH;
   };
 
+  const drawCommentBlock = (p, cursorY) => {
+    const comment = safe(commentaire);
+    if (!comment) return cursorY;
+
+    let cy = cursorY;
+    cy -= 14;
+    const labelSize = 10;
+    const valueSize = 9.5;
+    p.drawText('Commentaire :', { x: tableX, y: cy - 10, size: labelSize, font: fontBold, color: black });
+    const linesC = wrapText(comment, tableW, valueSize, font).slice(0, 2);
+    let ty = cy - 24;
+    for (const line of linesC) {
+      p.drawText(line, { x: tableX, y: ty, size: valueSize, font, color: black });
+      ty -= (valueSize + 3);
+    }
+    return ty + 6;
+  };
+
   // --- Table ---
   y -= 12;
   const tableX = 60;
@@ -965,19 +983,8 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     y = drawTableRow(page, y, l);
   }
 
-  const comment = safe(commentaire);
-  if (comment) {
-    y -= 14;
-    const labelSize = 10;
-    const valueSize = 9.5;
-    page.drawText('Commentaire :', { x: tableX, y: y - 10, size: labelSize, font: fontBold, color: black });
-    const linesC = wrapText(comment, tableW, valueSize, font).slice(0, 2);
-    let cy = y - 24;
-    for (const line of linesC) {
-      page.drawText(line, { x: tableX, y: cy, size: valueSize, font, color: black });
-      cy -= (valueSize + 3);
-    }
-    y = cy + 6;
+  if (remaining.length === 0) {
+    y = drawCommentBlock(page, y);
   }
 
   // --- Total box ---
@@ -1048,6 +1055,23 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
     remaining = remaining.slice(chunk.length);
     for (const l of chunk) {
       py = drawTableRow(p, py, l);
+    }
+
+    if (remaining.length === 0) {
+      const minYForComment = 50;
+      const estimatedNeeded = 60;
+      if (py - estimatedNeeded < minYForComment) {
+        const p2 = pdfDoc.addPage([595.28, 841.89]);
+        const ph2 = p2.getHeight();
+        const title2 = 'ANNEXE I (suite)';
+        const tw2 = fontBold.widthOfTextAtSize(title2, 12);
+        p2.drawText(title2, { x: (pw - tw2) / 2, y: ph2 - 50, size: 12, font: fontBold, color: black });
+        let py2 = ph2 - 75;
+        py2 = drawTableHeader(p2, py2);
+        drawCommentBlock(p2, py2);
+      } else {
+        drawCommentBlock(p, py);
+      }
     }
 
     // safety: prevent infinite loop if something goes wrong with geometry

@@ -1316,13 +1316,9 @@ window.addEventListener('DOMContentLoaded', () => {
   openExpenseTypeModal();
 
   const expenseTypeModal = el('expenseTypeModal');
-  const expenseTypeCloseBtn = el('expenseTypeCloseBtn');
   const expenseTypeValidateBtn = el('expenseTypeValidateBtn');
   const expenseTypeSelect = el('expenseTypeSelect');
 
-  if (expenseTypeCloseBtn) {
-    expenseTypeCloseBtn.addEventListener('click', closeExpenseTypeModal);
-  }
   if (expenseTypeValidateBtn) {
     expenseTypeValidateBtn.addEventListener('click', () => {
       state.expenseType = (expenseTypeSelect?.value || '').trim() || null;

@@ -861,7 +861,7 @@ async function createRecapPdf({ nom, adresse, motif, lieu, dateMission, renonceI
   y -= 10;
   const rules = [
     'Utiliser un seul état par déplacement ou mission à envoyer par courrier au trésorier (email :',
-    'compta.bfco@gmail.com) dans le mois qui suit la mission (accompagné d\'un RIB).',
+    'compta.lbfco@gmail.com) dans le mois qui suit la mission (accompagné d\'un RIB).',
     'Joindre les justificatifs (invitation - péage - etc...).',
     '- L\'indemnité est fixée chaque année par le Comité Directeur (0,35€/km). Elle peut être modifiée par anticipation',
     'lors d\'un Comité Directeur si le besoin s\'en fait sentir.',

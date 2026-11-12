@@ -337,7 +337,38 @@ function getLinesData() {
   });
 }
 
+function updateEmptyState() {
+  const empty = el('emptyRows');
+  if (empty) empty.hidden = getConnectedLineRowsInDomOrder().length > 0;
+}
+
+/* Valide les lignes : ignore les lignes totalement vides, signale les lignes incomplètes.
+   Retourne { lines, errors }. */
+function collectValidLines() {
+  const lines = [];
+  const errors = [];
+  getConnectedLineRowsInDomOrder().forEach((r, idx) => {
+    const warn = r.tr.querySelector('.lineWarn');
+    r.tr.classList.remove('row-error');
+    const cat = r.tr.querySelector('.cat').value || '';
+    const desc = (r.tr.querySelector('.desc').value || '').trim();
+    const km = parseFloat(r.tr.querySelector('.km')?.value || '0') || 0;
+    const amt = parseFloat(r.tr.querySelector('.amt').value || '0') || 0;
+    const hasJustif = state.justifs.some(j => j.source === 'line' && j.rowId === r.rowId);
+
+    if (!desc && !km && !amt && !hasJustif) return; // ligne vide : ignorée
+    const n = idx + 1;
+    if (!desc) errors.push(`Ligne ${n} : description manquante.`);
+    else if (!(amt > 0)) errors.push(`Ligne ${n} : montant manquant${cat === 'Déplacement' ? ' (renseigne les km)' : ''}.`);
+    else { lines.push({ cat, desc, km, amt }); return; }
+    r.tr.classList.add('row-error');
+    if (warn && !warn.textContent) warn.textContent = 'Ligne incomplète.';
+  });
+  return { lines, errors };
+}
+
 function updateTotal() {
+  updateEmptyState();
   const lines = getLinesData();
   const total = lines.reduce((s, l) => s + (Number.isFinite(l.amt) ? l.amt : 0), 0);
   el('totalEuros').textContent = fmtEUR(total);
@@ -1145,7 +1176,13 @@ async function generateFinalPdf() {
     return lines.join('\n').trim();
   })();
 
-  const lines = getLinesData();
+  const { lines, errors } = collectValidLines();
+  if (errors.length > 0 || lines.length === 0) {
+    const msg = errors.length > 0 ? errors.join('\n') : 'Ajoute au moins une ligne de frais.';
+    setStatus('❌ ' + msg.replace(/\n/g, ' '));
+    alert(msg);
+    return;
+  }
   const total = lines.reduce((s, l) => s + (l.amt || 0), 0);
 
   const expenseType = (state.expenseType || '').trim();
@@ -1392,10 +1429,6 @@ window.addEventListener('DOMContentLoaded', () => {
       updateThemeToggleLabel(applied);
     });
   }
-
-  // default rows
-  addLineRow({ cat: 'Déplacement' });
-  addLineRow({ cat: 'Repas' });
 
   el('addRowBtn').addEventListener('click', () => addLineRow());
   el('clearBtn').addEventListener('click', resetAll);

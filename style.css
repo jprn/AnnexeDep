@@ -502,3 +502,7 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0}
   gap:10px;
   margin-top:16px;
  }
+
+/* Ligne incomplète signalée à la génération */
+tr.row-error td { background: rgba(220, 38, 38, 0.10); }
+tr.row-error .lineWarn { color: #b91c1c; }

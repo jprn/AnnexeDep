@@ -1154,7 +1154,7 @@ function isImage(file) {
 
 async function generateFinalPdf() {
   if (!window.PDFLib) {
-    alert('PDF-Lib n\'est pas chargé. Vérifie ta connexion internet (CDN unpkg).');
+    showAlertModal('PDF-Lib n\'est pas chargé. Vérifie ta connexion internet (CDN unpkg).', 'Erreur');
     return;
   }
 
@@ -1178,9 +1178,9 @@ async function generateFinalPdf() {
 
   const { lines, errors } = collectValidLines();
   if (errors.length > 0 || lines.length === 0) {
-    const msg = errors.length > 0 ? errors.join('\n') : 'Ajoute au moins une ligne de frais.';
-    setStatus('❌ ' + msg.replace(/\n/g, ' '));
-    alert(msg);
+    const msgs = errors.length > 0 ? errors : ['Ajoute au moins une ligne de frais.'];
+    setStatus('❌ ' + msgs.join(' '));
+    showAlertModal(msgs, errors.length > 0 ? 'Lignes incomplètes' : 'Aucune ligne de frais');
     return;
   }
   const total = lines.reduce((s, l) => s + (l.amt || 0), 0);
@@ -1288,6 +1288,27 @@ function closeExpenseTypeModal() {
   const modal = el('expenseTypeModal');
   if (!modal) return;
   modal.hidden = true;
+}
+
+/* Modal d'alerte (remplace window.alert). messages : string ou tableau de strings. */
+function showAlertModal(messages, title = 'Information') {
+  const modal = el('alertModal');
+  if (!modal) { alert([].concat(messages).join('\n')); return; }
+  el('alertTitle').textContent = title;
+  const body = el('alertBody');
+  body.innerHTML = '';
+  for (const m of [].concat(messages)) {
+    const p = document.createElement('p');
+    p.textContent = m;
+    body.appendChild(p);
+  }
+  modal.hidden = false;
+  el('alertOkBtn')?.focus();
+}
+
+function closeAlertModal() {
+  const modal = el('alertModal');
+  if (modal) modal.hidden = true;
 }
 
 function openHelpModal() {
@@ -1420,6 +1441,17 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const alertModal = el('alertModal');
+  el('alertOkBtn')?.addEventListener('click', closeAlertModal);
+  if (alertModal) {
+    alertModal.addEventListener('click', (e) => {
+      if (e.target === alertModal) closeAlertModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !alertModal.hidden) closeAlertModal();
+    });
+  }
+
   const themeToggle = el('themeToggle');
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
@@ -1447,7 +1479,7 @@ window.addEventListener('DOMContentLoaded', () => {
     generateFinalPdf().catch(err => {
       console.error(err);
       setStatus('❌ Erreur pendant la génération. Ouvre la console (F12) pour le détail.');
-      alert('Erreur pendant la génération du PDF. Détail dans la console (F12).');
+      showAlertModal('Erreur pendant la génération du PDF. Détail dans la console (F12).', 'Erreur');
     });
   });
 
